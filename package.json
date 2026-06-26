@@ -1,5 +1,6 @@
 {
   "name": "white-stone-agarbatti",
+  "description": "White Stone Agarbatti website",
   "version": "1.0.0",
   "private": true,
   "type": "module",
