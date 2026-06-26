@@ -2,6 +2,33 @@ import React, { useState } from 'react';
 import { KEYWORDS } from '../constants';
 import { useSEO } from '../hooks/useSEO';
 
+const WHOLESALE_FAQS = [
+  {
+    q: "What is the minimum order quantity (MOQ) for wholesale?",
+    a: "Our standard MOQ for wholesale pricing starts at 500 units. For private label or custom packaging, the MOQ is 2,000 units per fragrance.",
+  },
+  {
+    q: "Do you offer private labeling services?",
+    a: "Yes! We specialize in private labeling. We can develop custom fragrances and packaging tailored to your brand's identity. This process typically takes 6–8 weeks from formulation to final delivery.",
+  },
+  {
+    q: "How long does delivery take for bulk orders?",
+    a: "Pan-India delivery usually takes 5–7 working days after order confirmation and payment. For international export orders, delivery time varies by destination and documentation requirements (typically 15–25 days).",
+  },
+  {
+    q: "Are your products charcoal-free?",
+    a: "Yes, all White Stone products are 100% charcoal-free and made from natural ingredients. We use premium wood powder, essential oils, and resins to ensure a clean, divine aroma.",
+  },
+  {
+    q: "Do you provide international shipping?",
+    a: "Absolutely. We currently export to 15+ countries including the USA, UK, UAE, and Southeast Asia. We handle all necessary documentation and export certifications.",
+  },
+  {
+    q: "What are your payment terms?",
+    a: "For new partners, we require 50% advance and 50% before dispatch. For long-term established partners, we offer flexible credit terms including net-30 billing.",
+  },
+];
+
 export const WholesalePage = () => {
   const canonical = 'https://whitestoneagarbatti.com/wholesale';
 
@@ -12,6 +39,7 @@ export const WholesalePage = () => {
     canonical,
   });
 
+  const [openFaq, setOpenFaq] = useState<number | null>(0); // Open the first one by default for visibility
   const [formData, setFormData] = useState({ name: '', company: '', city: '', quantity: '', message: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [sending, setSending] = useState(false);
@@ -65,9 +93,8 @@ export const WholesalePage = () => {
       {/* Hero */}
       <section style={{ padding: '40px 24px 80px', background: 'var(--bg)' }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
-          <div className="section-label" style={{ marginBottom: 16 }}>B2B WHOLESALE</div>
-          <h1 style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 700, fontSize: 'clamp(40px,6vw,80px)', color: 'var(--gold)', marginBottom: 20, lineHeight: 1.1 }}>Partner With Us</h1>
-          <p style={{ fontFamily: 'var(--font-serif)', fontSize: 18, fontStyle: 'italic', color: 'var(--text-mid)', maxWidth: 560, lineHeight: 1.7 }}>
+          <h1 style={{ fontFamily: 'var(--font-sans)', fontWeight: 900, fontSize: 'clamp(40px,6vw,80px)', color: 'var(--gold)', marginBottom: 20, lineHeight: 1.1, letterSpacing: '-0.02em' }}>Partner With Us</h1>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: 18, fontWeight: 500, color: 'var(--text-mid)', maxWidth: 560, lineHeight: 1.7 }}>
             Premium agarbatti bulk pricing for temples, distributors, retailers, and export partners across India and globally.
           </p>
         </div>
@@ -114,17 +141,91 @@ export const WholesalePage = () => {
       {/* Services */}
       <section style={{ padding: '80px 24px', background: 'var(--bg2)' }}>
         <div style={{ maxWidth: 800, margin: '0 auto' }}>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 700, fontSize: 'clamp(28px,4vw,48px)', color: 'var(--text-dark)', marginBottom: 48 }}>Wholesale Solutions</h2>
+          <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 800, fontSize: 'clamp(28px,4vw,48px)', color: 'var(--text-dark)', marginBottom: 48, textAlign: 'center', letterSpacing: '-0.02em' }}>Wholesale Solutions</h2>
           {[
             { title: 'Private Label', body: 'Develop your own brand with custom packaging, fragrances, and branding. Minimum order: 2,000 units. 6–8 weeks turnaround. We handle everything from formulation to packaging.' },
             { title: 'Export Quality', body: 'International certification-ready agarbatti. We export to 15+ countries including UAE, USA, UK, and Southeast Asia. All documentation provided.' },
             { title: 'Delivery & Payment', body: 'Pan-India delivery within 5–7 days. Flexible payment: 50% advance, 50% on delivery. Large orders eligible for net-30 credit terms.' },
-          ].map(s => (
-            <div key={s.title} style={{ marginBottom: 40, paddingBottom: 40, borderBottom: '1px solid var(--border)' }}>
-              <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 16, color: 'var(--gold)', letterSpacing: '0.08em', marginBottom: 12 }}>{s.title}</h3>
-              <p style={{ fontFamily: 'var(--font-serif)', fontSize: 16, color: 'var(--text-mid)', lineHeight: 1.8 }}>{s.body}</p>
+          ].map((s, i) => (
+            <div key={s.title} className="reveal-on-scroll" style={{ marginBottom: 40, paddingBottom: 40, borderBottom: '1px solid var(--border)', transitionDelay: `${i * 0.1}s` }}>
+              <h3 style={{ fontFamily: 'var(--font-sans)', fontWeight: 800, fontSize: 18, color: 'var(--gold)', letterSpacing: '0.08em', marginBottom: 12 }}>{s.title}</h3>
+              <p style={{ fontFamily: 'var(--font-sans)', fontSize: 16, color: 'var(--text-mid)', lineHeight: 1.8 }}>{s.body}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* FAQ Section — Professional Dark Theme */}
+      <section style={{ padding: '100px 24px', background: '#0A0500', position: 'relative', overflow: 'hidden' }}>
+        {/* Subtle grid overlay for texture */}
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
+          backgroundImage: 'linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px)',
+          backgroundSize: '48px 48px',
+        }} />
+
+        <div style={{ maxWidth: 800, margin: '0 auto', position: 'relative', zIndex: 2 }}>
+          <div className="section-label" style={{ marginBottom: 16, textAlign: 'center', color: 'var(--gold)' }}>COMMON QUESTIONS</div>
+          <h2 style={{ 
+            fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 700, 
+            fontSize: 'clamp(32px,5vw,56px)', color: '#FFFBF0', textAlign: 'center',
+            marginBottom: 64, lineHeight: 1.2, textShadow: '0 2px 20px rgba(0,0,0,0.5)'
+          }}>
+            Wholesale FAQ
+          </h2>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {WHOLESALE_FAQS.map((faq, i) => (
+              <div 
+                key={i} 
+                style={{ 
+                  borderRadius: 12, overflow: 'hidden', 
+                  border: `2px solid ${openFaq === i ? 'var(--gold)' : 'rgba(255,255,255,0.1)'}`,
+                  background: openFaq === i ? 'rgba(201,168,76,0.1)' : 'rgba(255,255,255,0.03)',
+                  transition: 'all 0.4s cubic-bezier(0.22,1,0.36,1)',
+                  boxShadow: openFaq === i ? '0 10px 40px rgba(0,0,0,0.4)' : 'none',
+                }}
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  style={{ 
+                    width: '100%', textAlign: 'left', padding: '28px 32px', 
+                    background: 'none', border: 'none', cursor: 'pointer', 
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 24 
+                  }}
+                  aria-expanded={openFaq === i}
+                >
+                  <span style={{ 
+                    fontFamily: 'var(--font-serif)', fontSize: 20, fontWeight: 700, 
+                    color: openFaq === i ? 'var(--gold)' : '#FFF', 
+                    lineHeight: 1.4, transition: 'color 0.3s' 
+                  }}>
+                    {faq.q}
+                  </span>
+                  <span style={{ 
+                    fontSize: 28, color: 'var(--gold)', flexShrink: 0, 
+                    transition: 'transform 0.4s cubic-bezier(0.22,1,0.36,1)', 
+                    transform: openFaq === i ? 'rotate(45deg)' : 'none',
+                    fontWeight: 700
+                  }}>+</span>
+                </button>
+                <div style={{
+                  maxHeight: openFaq === i ? '500px' : '0px',
+                  opacity: openFaq === i ? 1 : 0,
+                  transition: 'all 0.5s cubic-bezier(0.22,1,0.36,1)',
+                  overflow: 'hidden',
+                }}>
+                  <p style={{ 
+                    fontFamily: 'var(--font-sans)', fontSize: 16, color: '#FFFFFF', // Pure white for maximum visibility
+                    lineHeight: 1.8, padding: '0 32px 32px', margin: 0,
+                    fontWeight: 400
+                  }}>
+                    {faq.a}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -176,11 +277,17 @@ export const WholesalePage = () => {
             <button
               onClick={handleSubmit}
               disabled={sending}
-              className="btn-whatsapp"
+              className="btn-primary"
               style={{
-                width: '100%', justifyContent: 'center',
+                width: '100%', 
+                justifyContent: 'center',
                 opacity: sending ? 0.7 : 1,
                 cursor: sending ? 'not-allowed' : 'pointer',
+                borderRadius: 100,
+                padding: '16px 32px',
+                fontSize: 14,
+                fontWeight: 800,
+                letterSpacing: '0.05em'
               }}
             >
               {sending ? (

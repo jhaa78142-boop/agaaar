@@ -11,7 +11,46 @@ export const FloatingUI = () => {
   if (!visible) return null;
 
   return (
-    <div className="floating-btn" role="complementary" aria-label="Quick actions">
+    <div className="floating-btn" role="complementary" aria-label="Quick actions" style={{ 
+      position: 'fixed', 
+      bottom: 24, 
+      right: 24, 
+      zIndex: 1000, 
+      display: 'flex', 
+      flexDirection: 'column', 
+      alignItems: 'center', 
+      gap: 12 
+    }}>
+      {/* Call Us Button */}
+      <a
+        href="tel:+919226915311"
+        aria-label="Call White Stone"
+        style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          background: 'var(--gold)', color: '#1A0E00',
+          padding: '10px 18px', borderRadius: 40,
+          fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 800,
+          letterSpacing: '0.06em', textDecoration: 'none',
+          boxShadow: '0 4px 15px rgba(201,168,76,0.3)',
+          transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+          willChange: 'transform',
+        }}
+        onMouseEnter={e => {
+          (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)';
+          (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(201,168,76,0.4)';
+        }}
+        onMouseLeave={e => {
+          (e.currentTarget as HTMLElement).style.transform = 'none';
+          (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 15px rgba(201,168,76,0.3)';
+        }}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 4.93 2 2 0 0 1 3.6 2.72h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 10.09a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+        </svg>
+        CALL US
+      </a>
+
+      {/* WhatsApp Button */}
       <a
         href="https://wa.me/919226915311?text=Hello%2C%20I%20am%20interested%20in%20White%20Stone%20Agarbatti"
         target="_blank"
@@ -20,11 +59,12 @@ export const FloatingUI = () => {
         style={{
           display: 'flex', alignItems: 'center', gap: 10,
           background: '#25D366', color: '#FFFFFF',
-          padding: '12px 20px', borderRadius: 40,
+          padding: '12px 24px', borderRadius: 40,
           fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 700,
           letterSpacing: '0.06em', textDecoration: 'none',
           boxShadow: '0 4px 20px rgba(37,211,102,0.4)',
-          transition: 'transform 0.2s, box-shadow 0.2s',
+          transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+          willChange: 'transform',
         }}
         onMouseEnter={e => {
           (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)';

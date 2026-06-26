@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "npx vite",
     "build": "npx vite build",
-    "preview": "npx vite preview"
+    "preview": "npx vite preview",
+    "sitemap": "node scripts/generate-sitemap.js"
   },
   "dependencies": {
     "react": "^19.1.0",

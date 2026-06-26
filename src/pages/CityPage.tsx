@@ -221,9 +221,10 @@ const BENEFITS = [
 ];
 
 export const CityPage = () => {
-  const { id, kw: kwSlug } = useParams<{ id: string; kw?: string }>();
+  const { id, kw } = useParams<{ id: string; kw?: string }>();
   const navigate = useNavigate();
   const city = CITIES.find(c => c.id === id);
+  const product = kw ? PRODUCTS.find(p => p.id === kw) : null;
   const cityName = city?.name || 'India';
   const regionName = city?.region || 'Maharashtra';
   const cityDesc = city?.desc || 'a major city in Maharashtra';
@@ -241,7 +242,7 @@ export const CityPage = () => {
     kwList.find(k => kwToSlug(k) === slug) || '';
 
   // Read active keyword from URL slug /city/:id/:kw
-  const activeKw = kwSlug ? slugToKw(kwSlug, allCityKws) : '';
+  const activeKw = kw ? slugToKw(kw, allCityKws) : '';
 
   // Handle keyword pill click — navigate to clean slug URL or open WhatsApp if already active
   const handleKwClick = (kw: string, e: React.MouseEvent) => {
@@ -270,10 +271,16 @@ export const CityPage = () => {
   }, [activeKw]);
 
   useSEO({
-    title: `Buy Agarbatti in ${cityName} | Best Incense Sticks Online ${cityName} | White Stone`,
-    description: `Buy premium agarbatti in ${cityName} online. White Stone offers natural, charcoal-free, long-lasting incense sticks. Wholesale agarbatti supplier ${cityName}. Order on WhatsApp for fast delivery across ${regionName}.`,
+    title: product 
+      ? `Buy ${product.name} in ${cityName} — White Stone Agarbatti` 
+      : `Buy Agarbatti in ${cityName} | Best Incense Sticks Online ${cityName} | White Stone`,
+    description: product 
+      ? `Order ${product.name} agarbatti online in ${cityName}. ${product.fragrance} fragrance. Fast delivery in ${cityName}, ${regionName}.` 
+      : `Buy premium agarbatti in ${cityName} online. White Stone offers natural, charcoal-free, long-lasting incense sticks. Wholesale agarbatti supplier ${cityName}. Order on WhatsApp for fast delivery across ${regionName}.`,
     keywords: allCityKws.slice(0, 40).join(', ') + ', ' + KEYWORDS.join(', '),
-    canonical,
+    canonical: product 
+      ? `https://whitestoneagarbatti.com/city/${id}/${product.id}` 
+      : (kw ? `https://whitestoneagarbatti.com/city/${id}/${kw}` : canonical),
     schema: {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
@@ -424,7 +431,7 @@ export const CityPage = () => {
       {/* ─── GOOGLE-STYLE RESULTS STATS ─── */}
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '8px 24px 0' }}>
         <span style={{ fontFamily: 'Arial, sans-serif', fontSize: 13, color: '#70757a' }}>
-          About 4,12,000 results (0.54 seconds) for <em>{activeKw || `buy agarbatti in ${cityName}`}</em>
+          About 4,12,000 results (0.54 seconds) for <strong>{activeKw || `buy agarbatti in ${cityName}`}</strong>
         </span>
       </div>
 
@@ -456,7 +463,7 @@ export const CityPage = () => {
                   whiteSpace: 'nowrap',
                   cursor: 'pointer',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.07)',
-                  fontWeight: isActive ? 600 : 400,
+                  fontWeight: 700, // Make all keywords bold
                   transition: 'all 0.15s',
                 }}
               >
@@ -586,7 +593,7 @@ export const CityPage = () => {
                     color: '#1a0dab',
                     lineHeight: 1.3,
                     marginBottom: 4,
-                    fontWeight: 400,
+                    fontWeight: 600, // Bolder title
                     cursor: 'default',
                   }}>
                     {group.icon} {group.group} — White Stone
@@ -864,7 +871,7 @@ export const CityPage = () => {
         </div>
       </section>
 
-      {/* ─── FINAL CTA ─── */}
+      {/* Final CTA */}
       <section style={{ padding: '80px 24px', background: 'var(--bg)', textAlign: 'center', borderTop: '1px solid var(--border)' }}>
         <div style={{ maxWidth: 640, margin: '0 auto' }}>
           <div className="section-label" style={{ marginBottom: 16 }}>GET STARTED TODAY</div>
@@ -881,6 +888,42 @@ export const CityPage = () => {
               ORDER ON WHATSAPP
             </a>
             <a href="/wholesale" className="btn-outline">WHOLESALE ENQUIRY</a>
+          </div>
+        </div>
+      </section>
+
+      {/* Product × City SEO Links */}
+      <section style={{ padding: '60px 24px', background: 'var(--bg2)', borderTop: '1px solid var(--border)' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', textAlign: 'center' }}>
+          <div className="section-label" style={{ marginBottom: 12 }}>SHOP BY PRODUCT</div>
+          <h3 style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 700, fontSize: 24, color: 'var(--text-dark)', marginBottom: 32 }}>
+            Buy White Stone Agarbatti in {city?.name}
+          </h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' }}>
+            {PRODUCTS.map(product => (
+              <a 
+                key={product.id}
+                href={`/city/${city?.id}/${product.id}`}
+                style={{ 
+                  padding: '10px 20px', background: 'rgba(201,168,76,0.07)', 
+                  border: '1px solid rgba(201,168,76,0.2)', borderRadius: 4,
+                  fontFamily: 'var(--font-sans)', fontSize: 14, color: 'var(--gold2)',
+                  textDecoration: 'none', transition: 'all 0.3s', fontWeight: 500
+                }}
+                onMouseEnter={e => {
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.background = 'rgba(201,168,76,0.16)';
+                  el.style.color = 'var(--gold)';
+                }}
+                onMouseLeave={e => {
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.background = 'rgba(201,168,76,0.07)';
+                  el.style.color = 'var(--gold2)';
+                }}
+              >
+                {product.name} in {city?.name}
+              </a>
+            ))}
           </div>
         </div>
       </section>

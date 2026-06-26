@@ -26,7 +26,7 @@ export const Footer = () => {
   const displayedCities = showAllCities ? CITIES : CITIES.slice(0, 20);
 
   const headingStyle: React.CSSProperties = {
-    fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: '0.15em',
+    fontFamily: 'var(--font-display)', fontSize: 13, letterSpacing: '0.15em', // Increased from 11
     color: 'var(--gold2)', textTransform: 'uppercase', marginBottom: 20,
   };
 
@@ -45,20 +45,30 @@ export const Footer = () => {
       <div style={{ maxWidth: 1280, margin: '0 auto' }}>
 
         {/* ─── MAIN GRID ─── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 48, marginBottom: 64 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 48, marginBottom: 64 }} className="footer-grid">
           {/* Brand */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
               <div style={{
                 width: 62, height: 62, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
-                boxShadow: '0 0 0 2.5px rgba(201,168,76,0.5), 0 4px 20px rgba(201,168,76,0.2)',
+                boxShadow: '0 0 0 2px var(--gold), 0 4px 20px rgba(0,0,0,0.4)',
+                background: '#1A0E00',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}>
                 <img
                   src="/ws-emblem.webp"
                   alt="White Stone WS Emblem"
                   width={62}
                   height={62}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center', display: 'block' }}
+                  style={{ 
+                    width: '100%', 
+                    height: '100%', 
+                    objectFit: 'cover', 
+                    transform: 'scale(2.1)', // Max consistency: Same scale as navbar and home page
+                    display: 'block' 
+                  }}
                 />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -147,12 +157,13 @@ export const Footer = () => {
                 <a
                   href={`/city/${city.id}`}
                   style={{
-                    fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--text-muted)',
+                    fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--text-dark)', // Darker
                     textDecoration: 'none', padding: '2px 0',
                     transition: 'color 0.2s', whiteSpace: 'nowrap',
+                    fontWeight: 700, // Bold
                   }}
                   onMouseEnter={e => ((e.target as HTMLElement).style.color = 'var(--gold)')}
-                  onMouseLeave={e => ((e.target as HTMLElement).style.color = 'var(--text-muted)')}
+                  onMouseLeave={e => ((e.target as HTMLElement).style.color = 'var(--text-dark)')}
                   title={`Buy agarbatti in ${city.name} — White Stone`}
                 >
                   {city.name}
@@ -181,17 +192,37 @@ export const Footer = () => {
         </div>
 
         {/* ─── SEO KEYWORD FOOTER ─── */}
-        <div style={{ borderTop: '1px solid var(--border)', paddingTop: 32, marginBottom: 24 }}>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'rgba(153,153,153,0.6)', lineHeight: 1.8, maxWidth: 900 }}>
+        <div style={{ borderTop: '1px solid var(--border)', paddingTop: 32, marginBottom: 24, width: '100%' }}>
+          <p style={{ 
+            fontFamily: 'var(--font-sans)', 
+            fontSize: 11, 
+            color: 'rgba(51,51,51,0.8)', 
+            lineHeight: 1.8, 
+            width: '100%',
+            fontWeight: 700,
+            textAlign: 'left' // Changed from justify to left as per "not needed space"
+          }}>
             White Stone Agarbatti — {KEYWORDS.join(' · ')}
           </p>
         </div>
 
         {/* ─── BOTTOM BAR ─── */}
         <div style={{ borderTop: '1px solid var(--border)', paddingTop: 32, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: '#999' }}>
-            &copy; 2025 White Stone Agarbatti. All rights reserved. Chiplun, Maharashtra, India. | Agarbatti Manufacturer &amp; Wholesale Supplier.
-          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <p style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: '#999', margin: 0 }}>
+              &copy; 2025 White Stone Agarbatti. All rights reserved. Chiplun, Maharashtra, India. | Agarbatti Manufacturer &amp; Wholesale Supplier.
+            </p>
+            <p style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'var(--gold2)', fontWeight: 800, letterSpacing: '0.05em', margin: 0 }}>
+              WEBSITE DEVELOP AND SEO BY <a 
+                href="http://sunmargindia.com/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                style={{ color: 'inherit', textDecoration: 'none', transition: 'opacity 0.2s' }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
+                onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+              >SUNMARG INDIA</a>
+            </p>
+          </div>
           <div style={{ display: 'flex', gap: 24 }}>
             <a
               href="/privacy"

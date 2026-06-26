@@ -57,9 +57,9 @@ export const TestimonialsSection = ({ testimonials }: TestimonialsSectionProps) 
       >
         <div className="section-label" style={{ marginBottom: 24 }}>WHAT THEY SAY</div>
         {/* Quote mark decoration */}
-        <div style={{
-          fontFamily: 'var(--font-serif)', fontSize: 120, color: 'var(--gold)', lineHeight: 0.5,
-          opacity: 0.15, marginBottom: 24, userSelect: 'none',
+        <div aria-hidden="true" style={{
+          fontFamily: 'var(--font-serif)', fontSize: 96, color: 'var(--gold)', lineHeight: 0.5,
+          opacity: 0.12, marginBottom: 24, userSelect: 'none',
         }}>"</div>
         <div style={{ position: 'relative', minHeight: 160, overflow: 'hidden' }}>
           {testimonials.map((t, i) => (
@@ -73,6 +73,7 @@ export const TestimonialsSection = ({ testimonials }: TestimonialsSectionProps) 
                 opacity: i === testimonialIdx ? 1 : 0,
                 transform: i === testimonialIdx ? 'translateY(0)' : 'translateY(12px)',
                 transition: 'opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1)',
+                willChange: 'opacity, transform',
               }}
             >
               "{t.quote}"

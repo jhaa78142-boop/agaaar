@@ -9,9 +9,9 @@
   --gold3: #E8C96A;
   --copper: #B5541A;
   --brown: #6B3A2A;
-  --text-dark: #2C1A0E;
-  --text-mid: #5D3A28;
-  --text-muted: #7A6050;
+  --text-dark: #1A0E05; /* Darker for better contrast */
+  --text-mid: #4A2B18;
+  --text-muted: #5A4030; /* Darker for readability */
   --cream: #2C1A0E;
   --muted: #7A6050;
   --muted-soft: #A08070;
@@ -21,8 +21,8 @@
   --card-bg: #FFFFFF;
   --card-border: rgba(200,153,42,0.15);
 
-  --font-display: "Cinzel Decorative", serif;
-  --font-serif: "Cormorant Garamond", "Playfair Display", serif;
+  --font-display: "DM Sans", sans-serif;
+  --font-serif: "DM Sans", sans-serif;
   --font-sans: "DM Sans", sans-serif;
   --font-hindi: "Noto Serif Devanagari", serif;
 }
@@ -57,11 +57,91 @@ body {
   background: var(--bg);
   color: var(--cream);
   font-family: var(--font-sans);
-  font-weight: 300;
+  font-weight: 400; /* Senior Engineer: Improved weight for long-form reading */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
-  font-size: 15px;
+  font-size: 16px; 
+  line-height: 1.7; /* Optimized for readability */
+}
+
+/* ─── Global Styles ─── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Page Transitions ─── */
+@keyframes route-enter {
+  from { opacity: 0; transform: translateY(30px); filter: blur(10px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes text-reveal {
+  from { clip-path: inset(0 100% 0 0); transform: translateX(-10px); }
+  to { clip-path: inset(0 0 0 0); transform: translateX(0); }
+}
+
+@keyframes premium-float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
+.route-animation {
+  animation: route-enter 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity, filter;
+}
+
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(40px);
+  filter: blur(8px);
+  transition: opacity 1.2s cubic-bezier(0.22, 1, 0.36, 1), transform 1.2s cubic-bezier(0.22, 1, 0.36, 1), filter 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity, filter;
+}
+
+.reveal-on-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+/* ─── Scroll Margin ─── */
+h1, h2, h3, h4, h5, h6 {
+  scroll-margin-top: 96px;
+}
+
+.glass-card {
+  background: rgba(10, 5, 0, 0.4);
+  backdrop-filter: blur(8px) saturate(160%);
+  -webkit-backdrop-filter: blur(8px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.text-glow {
+  text-shadow: 0 0 20px rgba(201, 168, 76, 0.3), 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.premium-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+  text-shadow: 0 10px 40px rgba(0,0,0,0.5);
 }
 
 /* ─── Accessibility: Focus-visible ─── */
@@ -92,6 +172,21 @@ body {
 @keyframes goldShimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
+}
+
+@keyframes shimmer-line {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0); }
+  50% { box-shadow: 0 0 0 6px rgba(201, 168, 76, 0.15); }
+}
+
+@keyframes text-reveal {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0% 0 0); }
 }
 @keyframes page-enter {
   from { opacity: 0; transform: translateY(20px); }
@@ -161,9 +256,10 @@ body {
 /* Nav hover gold underline */
 .nav-link {
   position: relative;
-  font-family: var(--font-display);
-  font-size: 13px;
-  letter-spacing: 0.1em;
+  font-family: var(--font-sans); /* Senior Engineer: Replaced Cinzel for better clarity */
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 0.08em;
   text-decoration: none;
   text-transform: uppercase;
   transition: color 0.3s;
@@ -193,7 +289,7 @@ body {
 /* Section label */
 .section-label {
   font-family: var(--font-display);
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--gold2);
@@ -204,10 +300,10 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-family: var(--font-display);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-family: var(--font-sans); /* Senior Engineer: Replaced Cinzel for readability */
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   padding: 14px 32px;
   background: var(--gold);
@@ -215,22 +311,28 @@ body {
   border: none;
   cursor: pointer;
   text-decoration: none;
-  transition: background 0.3s, transform 0.2s;
+  transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+  box-shadow: 0 4px 20px rgba(201, 168, 76, 0.3);
 }
 
 .btn-primary:hover {
   background: var(--gold3);
   transform: translateY(-1px);
+  box-shadow: 0 8px 30px rgba(201, 168, 76, 0.5);
+}
+
+.btn-primary:active, .btn-whatsapp:active, .btn-outline:active {
+  transform: scale(0.97);
 }
 
 .btn-outline {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   font-size: 13px;
-  font-weight: 400;
-  letter-spacing: 0.1em;
+  font-weight: 500;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   padding: 13px 31px;
   background: transparent;
@@ -238,7 +340,8 @@ body {
   border: 1px solid var(--gold);
   cursor: pointer;
   text-decoration: none;
-  transition: all 0.3s;
+  transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  backdrop-filter: blur(8px);
 }
 
 .btn-outline:hover {
@@ -255,9 +358,9 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-family: var(--font-display);
-  font-size: 13px;
-  font-weight: 700;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 14px 32px;
@@ -266,12 +369,12 @@ body {
   border: none;
   cursor: pointer;
   text-decoration: none;
-  transition: background 0.3s, transform 0.2s;
+  transition: background 0.3s, transform 0.2s, box-shadow 0.25s ease;
 }
 
 .btn-whatsapp:hover {
   background: #20b858;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 /* Noise texture overlay */
@@ -280,17 +383,19 @@ body {
   inset: 0;
   z-index: 9999;
   pointer-events: none;
-  opacity: 0.018;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.015;
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADl693eAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMElEQVQ4y2NgYGRiYmJiZGJmYWVjZ2NmY2djZ+Pm4ebj5+Pn4+fj5+Pn4+fj5+Pn4+f/DQE+AIsfAmcAO776AAAAAElFTkSuQmCC");
+  background-repeat: repeat;
 }
 
-[data-theme='dark'] .noise-overlay { opacity: 0.03; }
+[data-theme='dark'] .noise-overlay { opacity: 0.025; }
 
 /* Marquee */
 .marquee-track {
   display: flex;
-  animation: marquee 30s linear infinite;
+  animation: marquee 52s linear infinite; /* Senior Engineer: Slower for luxury feel */
   width: max-content;
+  will-change: transform;
 }
 
 /* Floating UI */
@@ -303,12 +408,29 @@ body {
   flex-direction: column;
   align-items: flex-end;
   gap: 12px;
+  animation: pulse-gold 3s ease-in-out infinite;
 }
 
 /* Mobile responsive */
 @media (max-width: 768px) {
   .hide-mobile { display: none !important; }
   .font-hindi { font-size: 14px; }
+  
+  .scene-indicators-rail { display: none !important; }
+  .hero-product-showcase { max-width: 72vw; margin: 0 auto; }
+  .hero-stats-row { gap: 20px !important; }
+  .hero-actions { flex-direction: column; width: 100%; gap: 12px; }
+  .hero-actions a { width: 100%; text-align: center; justify-content: center; }
+  
+  .product-grid {
+    grid-template-columns: minmax(100%, 1fr) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 .kw-strip-scroll::-webkit-scrollbar { display: none; }

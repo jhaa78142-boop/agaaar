@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 import { useIsMobile } from '../hooks/use-mobile';
 
@@ -19,9 +20,9 @@ const SHOWCASE_IMAGES = [
     caption: 'Full lineup of premium agarbatti',
   },
   {
-    src: '/product-rose-gold.webp',
-    label: 'CLOSE UP',
-    caption: 'Single stick — burning divinity',
+    src: '/gemini-generated-image-q0o5itq0o5itq0o5.webp',
+    label: 'BLACK OUDH',
+    caption: 'Deep, mysterious, and spiritually grounding',
   },
 ];
 
@@ -163,7 +164,7 @@ export const PhotoGallery = () => {
                   transition: 'transform 0.5s cubic-bezier(0.22,1,0.36,1)',
                 }}>
                   <div style={{
-                    fontFamily: 'var(--font-display)', fontSize: 9,
+                    fontFamily: 'var(--font-sans)', fontSize: 11,
                     letterSpacing: '0.2em', color: 'var(--gold3)',
                     marginBottom: 8, textTransform: 'uppercase',
                   }}>{img.label}</div>
@@ -199,22 +200,32 @@ export const PhotoGallery = () => {
         </div>
 
         {/* CTA below gallery */}
-        <div style={{ textAlign: 'center', marginTop: 48 }}>
-          <a href="/products" style={{
+        <div style={{ textAlign: 'center', marginTop: 48, position: 'relative', zIndex: 10 }}>
+          <Link to="/products" style={{
             display: 'inline-flex', alignItems: 'center', gap: 12,
-            fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700,
-            letterSpacing: '0.15em', padding: '14px 36px',
+            fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 800,
+            letterSpacing: '0.12em', padding: '16px 42px',
             background: 'linear-gradient(135deg, var(--gold), #B8891A)',
             color: '#1A0E00', border: 'none', cursor: 'pointer',
             textTransform: 'uppercase', textDecoration: 'none',
-            transition: 'transform 0.3s, box-shadow 0.3s',
+            transition: 'all 0.4s cubic-bezier(0.22,1,0.36,1)',
             boxShadow: '0 8px 32px rgba(201,168,76,0.4)',
+            borderRadius: 100,
+            pointerEvents: 'auto', // Senior Engineer: Forced pointer events for accuracy
           }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 12px 40px rgba(201,168,76,0.6)'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'none'; (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 32px rgba(201,168,76,0.4)'; }}
+            onMouseEnter={e => { 
+              const el = e.currentTarget as HTMLElement;
+              el.style.transform = 'translateY(-4px)'; 
+              el.style.boxShadow = '0 12px 48px rgba(201,168,76,0.6)'; 
+            }}
+            onMouseLeave={e => { 
+              const el = e.currentTarget as HTMLElement;
+              el.style.transform = 'none'; 
+              el.style.boxShadow = '0 8px 32px rgba(201,168,76,0.4)'; 
+            }}
           >
             EXPLORE FULL COLLECTION
-          </a>
+          </Link>
         </div>
       </div>
     </section>

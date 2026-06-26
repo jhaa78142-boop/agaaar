@@ -24,21 +24,21 @@ export const ProductsPage = () => {
         <div aria-hidden="true" style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(201,168,76,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(201,168,76,0.02) 1px, transparent 1px)', backgroundSize: '60px 60px', pointerEvents: 'none' }} />
         <div style={{ maxWidth: 1280, margin: '0 auto', position: 'relative', zIndex: 1 }}>
           <div style={{ marginBottom: 40 }}>
-            <div className="section-label" style={{ marginBottom: 12 }}>COLLECTION</div>
-            <h1 style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 700, fontSize: 'clamp(40px,6vw,80px)', color: 'var(--text-dark)', lineHeight: 1.1 }}>Our Collection</h1>
+            <h1 style={{ fontFamily: 'var(--font-sans)', fontWeight: 900, fontSize: 'clamp(40px,6vw,80px)', color: 'var(--text-dark)', lineHeight: 1.1, letterSpacing: '-0.02em' }}>Our Collection</h1>
           </div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             {tabs.map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 style={{
-                  fontFamily: 'var(--font-display)', textTransform: 'uppercase',
-                  padding: '10px 24px', border: '1px solid var(--gold)',
-                  fontSize: 11, letterSpacing: '0.1em', cursor: 'pointer',
+                  fontFamily: 'var(--font-sans)', textTransform: 'uppercase',
+                  padding: '12px 28px', border: '1px solid var(--gold)',
+                  fontSize: 12, fontWeight: 700, letterSpacing: '0.05em', cursor: 'pointer',
                   background: tab === activeTab ? 'var(--gold)' : 'transparent',
                   color: tab === activeTab ? '#1A0E00' : 'var(--gold)',
-                  transition: 'all 0.3s',
+                  borderRadius: 100,
+                  transition: 'all 0.3s cubic-bezier(0.22,1,0.36,1)',
                 }}
               >
                 {tab}
@@ -56,12 +56,35 @@ export const ProductsPage = () => {
               <a
                 key={p.id}
                 href={`/product/${p.id}`}
-                className="product-card"
-                style={{ display: 'block', padding: '36px 28px', textDecoration: 'none', borderTop: '2px solid var(--gold)', position: 'relative' }}
+                className="product-card reveal-on-scroll"
+                style={{
+                  display: 'block',
+                  padding: '32px',
+                  textDecoration: 'none',
+                  background: 'var(--bg)',
+                  borderRadius: 16,
+                  border: '1px solid var(--border)',
+                  transition: 'transform 0.5s cubic-bezier(0.22,1,0.36,1), border-color 0.4s ease, box-shadow 0.5s ease',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  transitionDelay: `${(i % 4) * 0.1}s`,
+                }}
+                onMouseEnter={e => {
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.transform = 'translateY(-8px)';
+                  el.style.borderColor = 'var(--gold)';
+                  el.style.boxShadow = '0 12px 40px rgba(0,0,0,0.15)';
+                }}
+                onMouseLeave={e => {
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.transform = 'translateY(0)';
+                  el.style.borderColor = 'var(--border)';
+                  el.style.boxShadow = 'none';
+                }}
               >
                 <div aria-hidden="true" style={{ position: 'absolute', top: 12, right: 16, fontFamily: 'var(--font-display)', fontSize: 48, fontWeight: 900, color: 'rgba(201,168,76,0.05)', lineHeight: 1, userSelect: 'none' }}>0{i + 1}</div>
 
-                <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24, background: '#FDF6E3', borderRadius: 8 }}>
+                <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24, background: 'var(--bg2)', borderRadius: 8 }}>
                   <img
                     src={getProductImage(p.id)}
                     alt={`${p.name} — premium handmade agarbatti`}
@@ -72,12 +95,12 @@ export const ProductsPage = () => {
                   />
                 </div>
 
-                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 18, fontWeight: 600, color: 'var(--text-dark)', fontStyle: 'italic', marginBottom: 8 }}>{p.name}</h3>
-                <p style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--text-muted)', marginBottom: 14, lineHeight: 1.6 }}>{p.description.slice(0, 90)}…</p>
+                <h3 style={{ fontFamily: 'var(--font-sans)', fontSize: 18, fontWeight: 700, color: 'var(--text-dark)', marginBottom: 8 }}>{p.name}</h3>
+                <p style={{ fontFamily: 'var(--font-sans)', fontSize: 14, color: 'var(--text-muted)', marginBottom: 14, lineHeight: 1.6 }}>{p.description.slice(0, 90)}…</p>
 
                 <div style={{ display: 'flex', gap: 6, marginBottom: 20, flexWrap: 'wrap' }}>
                   {['NATURAL', 'LONG BURN', 'TEMPLE GRADE'].map(tag => (
-                    <span key={tag} style={{ fontFamily: 'var(--font-display)', fontSize: 9, letterSpacing: '0.1em', padding: '3px 9px', border: '1px solid rgba(201,168,76,0.25)', color: 'var(--gold2)', textTransform: 'uppercase', borderRadius: 2 }}>{tag}</span>
+                    <span key={tag} style={{ fontFamily: 'var(--font-sans)', fontSize: 10, fontWeight: 700, letterSpacing: '0.05em', padding: '4px 10px', background: 'var(--bg3)', color: 'var(--gold2)', textTransform: 'uppercase', borderRadius: 4 }}>{tag}</span>
                   ))}
                 </div>
 

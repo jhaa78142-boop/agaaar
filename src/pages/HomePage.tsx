@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { PRODUCTS, BLOGS, KEYWORDS } from '../constants';
+import React, { useState, useEffect, useRef, useMemo, memo } from 'react';
+import { Link } from 'react-router-dom';
+import { PRODUCTS, BLOGS, KEYWORDS, CITIES } from '../constants';
 import { useSEO } from '../hooks/useSEO';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 import { MandalaVisual } from '../components/MandalaVisual';
@@ -25,9 +26,9 @@ const SHOWCASE_IMAGES = [
     caption: 'Full lineup of premium agarbatti',
   },
   {
-    src: '/product-rose-gold.webp',
-    label: 'CLOSE UP',
-    caption: 'Single stick — burning divinity',
+    src: getProductImage('black-oudh'),
+    label: 'BLACK OUDH',
+    caption: 'Deep, mysterious, and spiritually grounding',
   },
 ];
 
@@ -37,24 +38,24 @@ const MARQUEE_ITEMS = [
   'CHARCOAL FREE', '62 STICKS', 'DIVINE FRAGRANCE', 'SACRED RITUALS',
 ];
 
-const HERO_SCROLL_HEIGHT_VH = 260;
-const HERO_SPRING_STIFFNESS = 0.12;
-const HERO_SPRING_DAMPING = 0.8;
+const HERO_SCROLL_HEIGHT_VH = 380; // Senior Engineer: Increased for 4 cinematic scenes
+const HERO_SPRING_STIFFNESS = 0.04; // Slower, more cinematic response
+const HERO_SPRING_DAMPING = 0.94; // Higher damping for ultra-smooth landing
 
 // ─── Photo Gallery Component ────────────────────────────────────────────────
 const PhotoGallery = () => {
   const [activeImg, setActiveImg] = useState(0);
   const [hovered, setHovered] = useState<number | null>(null);
-  const { ref: galleryRef, isIntersecting: galleryVisible } = useIntersectionObserver({ threshold: 0.01 });
+  const { ref: galleryRef, isIntersecting: galleryVisible } = useIntersectionObserver({ threshold: 0.08 });
 
   // Auto-rotate active image
   useEffect(() => {
-    const t = setInterval(() => setActiveImg(i => (i + 1) % SHOWCASE_IMAGES.length), 3500);
+    const t = setInterval(() => setActiveImg(i => (i + 1) % SHOWCASE_IMAGES.length), 4500);
     return () => clearInterval(t);
   }, []);
 
   return (
-    <section style={{ padding: '100px 0', background: '#0A0500', overflow: 'hidden', position: 'relative' }}>
+    <section style={{ padding: '100px 0', background: '#0A0500', overflow: 'hidden', position: 'relative', contentVisibility: 'auto' }}>
       {/* Golden top border */}
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, transparent, var(--gold), var(--gold3), var(--gold), transparent)' }} />
       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, transparent, var(--gold), var(--gold3), var(--gold), transparent)' }} />
@@ -67,20 +68,15 @@ const PhotoGallery = () => {
       }} />
 
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 24px' }} ref={galleryRef}>
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: 56, opacity: galleryVisible ? 1 : 0, transform: galleryVisible ? 'none' : 'translateY(20px)', transition: 'all 0.8s cubic-bezier(0.22,1,0.36,1)' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, marginBottom: 16, padding: '6px 20px', background: 'rgba(201,168,76,0.12)', border: '1px solid rgba(201,168,76,0.3)', backdropFilter: 'blur(8px)' }}>
-            <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--gold)' }} />
-            <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, letterSpacing: '0.2em', color: '#E8C96A' }}>OUR COLLECTION</span>
-            <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--gold)' }} />
+          {/* Header */}
+          <div style={{ textAlign: 'center', marginBottom: 56, opacity: galleryVisible ? 1 : 0, transform: galleryVisible ? 'none' : 'translateY(20px)', transition: 'opacity 0.8s cubic-bezier(0.22,1,0.36,1), transform 0.8s cubic-bezier(0.22,1,0.36,1)' }}>
+            <h2 style={{ fontFamily: 'var(--font-sans)', fontSize: 'clamp(36px,5vw,68px)', fontWeight: 800, color: '#FFFBF0', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
+              Crafted for the Sacred
+            </h2>
+            <p style={{ fontFamily: 'var(--font-sans)', fontSize: 18, color: 'rgba(253,246,227,0.7)', marginTop: 16, fontWeight: 500 }}>
+              Every pack, a story of devotion
+            </p>
           </div>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(36px,5vw,68px)', fontStyle: 'italic', fontWeight: 700, color: '#FFFBF0', lineHeight: 1.1 }}>
-            Crafted for the Sacred
-          </h2>
-          <p style={{ fontFamily: 'var(--font-serif)', fontSize: 17, color: 'rgba(253,246,227,0.6)', marginTop: 16, fontStyle: 'italic' }}>
-            Every pack, a story of devotion
-          </p>
-        </div>
 
         {/* MAIN GALLERY LAYOUT */}
         <div style={{
@@ -90,7 +86,7 @@ const PhotoGallery = () => {
           gap: 4,
           opacity: galleryVisible ? 1 : 0,
           transform: galleryVisible ? 'none' : 'translateY(30px)',
-          transition: 'all 1s cubic-bezier(0.22,1,0.36,1) 0.2s',
+          transition: 'opacity 1s cubic-bezier(0.22,1,0.36,1) 0.2s, transform 1s cubic-bezier(0.22,1,0.36,1) 0.2s',
         }}>
           {SHOWCASE_IMAGES.map((img, i) => {
             const isActive = activeImg === i;
@@ -109,10 +105,11 @@ const PhotoGallery = () => {
                   cursor: 'pointer',
                   flexShrink: 0,
                   border: highlight ? '1px solid rgba(201,168,76,0.6)' : '1px solid rgba(201,168,76,0.12)',
-                  transition: 'all 0.5s cubic-bezier(0.22,1,0.36,1)',
+                  transition: 'transform 0.5s cubic-bezier(0.22,1,0.36,1), border-color 0.5s cubic-bezier(0.22,1,0.36,1), box-shadow 0.5s cubic-bezier(0.22,1,0.36,1)',
                   transform: highlight ? 'translateY(-4px)' : 'none',
                   zIndex: highlight ? 2 : 1,
                   boxShadow: highlight ? '0 24px 60px rgba(0,0,0,0.6)' : '0 4px 16px rgba(0,0,0,0.3)',
+                  willChange: 'transform',
                 }}
               >
                 {/* Image */}
@@ -128,6 +125,7 @@ const PhotoGallery = () => {
                     transform: highlight ? 'scale(1.06)' : 'scale(1)',
                     transition: 'transform 0.7s cubic-bezier(0.22,1,0.36,1)',
                     filter: highlight ? 'brightness(0.85)' : 'brightness(0.6)',
+                    willChange: 'transform',
                   }}
                 />
 
@@ -137,7 +135,7 @@ const PhotoGallery = () => {
                   background: highlight
                     ? 'linear-gradient(to top, rgba(10,5,0,0.85) 0%, rgba(10,5,0,0.2) 50%, transparent 100%)'
                     : 'linear-gradient(to top, rgba(10,5,0,0.7) 0%, rgba(10,5,0,0.4) 60%, transparent 100%)',
-                  transition: 'background 0.5s',
+                  transition: 'opacity 0.5s',
                 }} />
 
                 {/* Active indicator bar */}
@@ -145,7 +143,7 @@ const PhotoGallery = () => {
                   position: 'absolute', top: 0, left: 0, right: 0, height: 3,
                   background: 'linear-gradient(90deg, var(--gold), var(--gold3))',
                   opacity: isActive ? 1 : 0,
-                  transition: 'opacity 0.4s',
+                  transition: 'opacity 0.4s ease',
                 }} />
 
                 {/* Image number */}
@@ -161,9 +159,10 @@ const PhotoGallery = () => {
                   padding: '24px 20px',
                   transform: highlight ? 'translateY(0)' : 'translateY(8px)',
                   transition: 'transform 0.5s cubic-bezier(0.22,1,0.36,1)',
+                  willChange: 'transform',
                 }}>
                   <div style={{
-                    fontFamily: 'var(--font-display)', fontSize: 9,
+                    fontFamily: 'var(--font-sans)', fontSize: 11, // Increased from 9
                     letterSpacing: '0.2em', color: 'var(--gold3)',
                     marginBottom: 8, textTransform: 'uppercase',
                   }}>{img.label}</div>
@@ -171,7 +170,7 @@ const PhotoGallery = () => {
                     fontFamily: 'var(--font-serif)', fontSize: 15,
                     color: '#FFFBF0', fontStyle: 'italic', lineHeight: 1.4,
                     opacity: highlight ? 1 : 0.7,
-                    transition: 'opacity 0.4s',
+                    transition: 'opacity 0.4s ease',
                   }}>{img.caption}</div>
                 </div>
               </div>
@@ -190,29 +189,39 @@ const PhotoGallery = () => {
                 width: i === activeImg ? 28 : 8, height: 8, borderRadius: 4,
                 border: 'none', cursor: 'pointer',
                 background: i === activeImg ? 'var(--gold)' : 'rgba(201,168,76,0.3)',
-                transition: 'all 0.4s cubic-bezier(0.22,1,0.36,1)',
+                transition: 'width 0.4s cubic-bezier(0.22,1,0.36,1), background 0.4s cubic-bezier(0.22,1,0.36,1)',
               }}
             />
           ))}
         </div>
 
         {/* CTA below gallery */}
-        <div style={{ textAlign: 'center', marginTop: 48 }}>
-          <a href="/products" style={{
+        <div style={{ textAlign: 'center', marginTop: 48, position: 'relative', zIndex: 10 }}>
+          <Link to="/products" style={{
             display: 'inline-flex', alignItems: 'center', gap: 12,
-            fontFamily: 'var(--font-display)', fontSize: 11, fontWeight: 700,
-            letterSpacing: '0.15em', padding: '14px 36px',
+            fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 800,
+            letterSpacing: '0.12em', padding: '16px 42px',
             background: 'linear-gradient(135deg, var(--gold), #B8891A)',
             color: '#1A0E00', border: 'none', cursor: 'pointer',
             textTransform: 'uppercase', textDecoration: 'none',
-            transition: 'transform 0.3s, box-shadow 0.3s',
+            transition: 'all 0.4s cubic-bezier(0.22,1,0.36,1)',
             boxShadow: '0 8px 32px rgba(201,168,76,0.4)',
+            borderRadius: 100,
+            pointerEvents: 'auto', // Senior Engineer: Forced pointer events for accuracy
           }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 12px 40px rgba(201,168,76,0.6)'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'none'; (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 32px rgba(201,168,76,0.4)'; }}
+            onMouseEnter={e => { 
+              const el = e.currentTarget as HTMLElement;
+              el.style.transform = 'translateY(-4px)'; 
+              el.style.boxShadow = '0 12px 48px rgba(201,168,76,0.6)'; 
+            }}
+            onMouseLeave={e => { 
+              const el = e.currentTarget as HTMLElement;
+              el.style.transform = 'none'; 
+              el.style.boxShadow = '0 8px 32px rgba(201,168,76,0.4)'; 
+            }}
           >
             EXPLORE FULL COLLECTION
-          </a>
+          </Link>
         </div>
       </div>
     </section>
@@ -230,7 +239,344 @@ const testimonials = [
   { quote: "White Stone agarbatti transformed our morning pooja. The fragrance lingers for hours — simply divine.", name: "PRIYA SHARMA", city: "Pune", initials: "PS", color: "#7B4F9E" },
   { quote: "As a temple supplier, quality matters. White Stone delivers consistency and purity every single time.", name: "RAMESH PATIL", city: "Mumbai", initials: "RP", color: "#2E6B8A" },
   { quote: "The Chandan Natural variety reminds me of ancient temples. Truly authentic and long lasting.", name: "ANANYA DESAI", city: "Nashik", initials: "AD", color: "#6B4226" },
+  { quote: "Best quality agarbatti I have ever used. The Rose fragrance is absolutely magical and stays all day.", name: "VIKRAM SINGH", city: "Delhi", initials: "VS", color: "#B8891A" },
+  { quote: "I order in bulk for my meditation center. The soothing aroma helps everyone focus. Highly recommended!", name: "MEERA REDDY", city: "Bangalore", initials: "MR", color: "#4A7C59" },
 ];
+
+// ─── FAQ INTERACTIVE ITEM ────────────────────────────────────────────────
+const FAQItem = ({ q, a, index }: { q: string, a: string, index: number }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  return (
+    <div 
+      className="glass-card reveal-on-scroll" 
+      style={{ 
+        padding: '0', 
+        borderRadius: 16, 
+        border: '1px solid var(--border)',
+        background: 'var(--bg)',
+        boxShadow: isOpen ? '0 12px 40px rgba(0,0,0,0.12)' : '0 4px 20px rgba(0,0,0,0.05)',
+        transition: 'all 0.5s cubic-bezier(0.22,1,0.36,1)',
+        overflow: 'hidden',
+        transitionDelay: `${index * 0.1}s`,
+        cursor: 'pointer'
+      }}
+      onClick={() => setIsOpen(!isOpen)}
+    >
+      <div style={{ 
+        padding: '24px 32px', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between',
+        gap: 20
+      }}>
+        <h3 style={{ 
+          fontFamily: 'var(--font-sans)', 
+          fontSize: 18, 
+          fontWeight: 700, 
+          color: isOpen ? 'var(--gold)' : 'var(--gold2)', 
+          transition: 'color 0.3s ease',
+          margin: 0
+        }}>{q}</h3>
+        <div style={{ 
+          width: 32, height: 32, borderRadius: '50%', 
+          background: isOpen ? 'var(--gold)' : 'rgba(201,168,76,0.1)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          transition: 'all 0.4s cubic-bezier(0.22,1,0.36,1)',
+          flexShrink: 0
+        }}>
+          <span style={{ 
+            color: isOpen ? '#1A0E00' : 'var(--gold)', 
+            fontSize: 20, 
+            fontWeight: 300,
+            transform: isOpen ? 'rotate(45deg)' : 'rotate(0)',
+            transition: 'transform 0.4s cubic-bezier(0.22,1,0.36,1)'
+          }}>+</span>
+        </div>
+      </div>
+      <div style={{ 
+        maxHeight: isOpen ? '300px' : '0', 
+        opacity: isOpen ? 1 : 0,
+        overflow: 'hidden',
+        transition: 'all 0.5s cubic-bezier(0.22,1,0.36,1)',
+        background: 'rgba(201,168,76,0.02)'
+      }}>
+        <div style={{ padding: '0 32px 32px', marginTop: -8 }}>
+          <p style={{ 
+            fontFamily: 'var(--font-sans)', 
+            fontSize: 15, 
+            color: 'var(--text-muted)', 
+            lineHeight: 1.6,
+            margin: 0
+          }}>{a}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── SEO City Grid Section ─────────────────────────────────────────────────
+const CitySEOSection = memo(() => {
+  const { ref: cityRef, isIntersecting: cityVisible } = useIntersectionObserver({ threshold: 0.05 });
+
+  // Senior Engineer: Memoize this massive list to prevent re-calculating on every scroll/render
+  const allLinks = useMemo(() => {
+    return CITIES.flatMap(city => 
+      KEYWORDS.map(kw => ({
+        city: city.name,
+        cityId: city.id,
+        keyword: kw,
+        kwSlug: kw.toLowerCase().replace(/\s+/g, '-')
+      }))
+    );
+  }, []);
+
+  // Group cities by region from the imported CITIES array
+  const regionGroups = useMemo(() => {
+    return CITIES.reduce((acc, city) => {
+      if (!acc[city.region]) acc[city.region] = [];
+      acc[city.region].push(city);
+      return acc;
+    }, {} as Record<string, typeof CITIES>);
+  }, []);
+
+  // Priority regions shown prominently (in this order)
+  const PRIORITY_REGIONS = [
+    'Mumbai', 'Thane', 'Palghar', 'Raigad', 'Pune', 'Nashik',
+    'Aurangabad', 'Nagpur', 'Amravati', 'Akola'
+  ];
+
+  const sortedRegions = useMemo(() => {
+    return [
+      ...PRIORITY_REGIONS.filter(r => regionGroups[r]),
+      ...Object.keys(regionGroups).filter(r => !PRIORITY_REGIONS.includes(r))
+    ];
+  }, [regionGroups]);
+
+  return (
+    <section 
+      ref={cityRef}
+      style={{ 
+        padding: '100px 24px', 
+        background: 'var(--bg)', 
+        position: 'relative', 
+        overflow: 'hidden',
+        borderTop: '1px solid var(--border)',
+      }}
+    >
+      {/* Subtle gold grid texture */}
+      <div aria-hidden="true" style={{
+        position: 'absolute', inset: 0, opacity: 0.03,
+        backgroundImage: 'linear-gradient(var(--gold) 1px, transparent 1px), linear-gradient(90deg, var(--gold) 1px, transparent 1px)',
+        backgroundSize: '60px 60px',
+        zIndex: 0
+      }} />
+
+      <div style={{ 
+        maxWidth: 1200, margin: '0 auto', position: 'relative', zIndex: 1,
+        opacity: 1, // Force visible
+      }}>
+        {/* Section header */}
+        <div style={{ textAlign: 'center', marginBottom: 64 }}>
+          <h2 style={{ 
+            fontFamily: 'var(--font-sans)', fontWeight: 800, 
+            fontSize: 'clamp(32px,5vw,52px)', color: 'var(--text-dark)', marginBottom: 24,
+            letterSpacing: '-0.02em'
+          }}>
+            Buy Premium Agarbatti Near You
+          </h2>
+          
+          <p style={{ 
+            fontFamily: 'var(--font-sans)', fontSize: 16, color: 'var(--text-muted)', 
+            maxWidth: 600, margin: '0 auto', lineHeight: 1.6 
+          }}>
+            White Stone delivers across India. Click your city for local 
+            availability, pricing & fast doorstep delivery.
+          </p>
+        </div>
+
+        {/* Region blocks grid */}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', 
+          gap: 40 
+        }}>
+          {sortedRegions.map((region, rIdx) => {
+            const cities = regionGroups[region];
+            if (!cities || cities.length === 0) return null;
+            const metroOrCity = cities.filter(c => c.type === 'metro' || c.type === 'city');
+            const suburbs = cities.filter(c => c.type === 'suburb' || c.type === 'town');
+
+            return (
+              <div key={region} style={{ 
+                opacity: 1
+              }}>
+                {/* Region label */}
+                <div style={{ 
+                  display: 'flex', alignItems: 'baseline', gap: 12, 
+                  marginBottom: 20, borderBottom: '2px solid var(--gold)', paddingBottom: 12 
+                }}>
+                  <h3 style={{ 
+                    fontFamily: 'var(--font-display)', fontSize: 17, fontWeight: 800, 
+                    color: 'var(--text-dark)', letterSpacing: '0.05em', textTransform: 'uppercase' 
+                  }}>
+                    {region}
+                  </h3>
+                  <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--gold)', fontWeight: 700 }}>
+                    {cities.length} {cities.length === 1 ? 'AREA' : 'AREAS'}
+                  </span>
+                </div>
+
+                {/* Metro/City pills — larger, gold accent */}
+                {metroOrCity.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: suburbs.length > 0 ? 12 : 0 }}>
+                    {metroOrCity.map(city => (
+                      <a 
+                        key={city.id} 
+                        href={`/city/${city.id}`}
+                        style={{ 
+                          padding: '10px 18px', borderRadius: 6, background: '#FFFBF0',
+                          border: '1.5px solid var(--gold)', color: 'var(--brown)',
+                          fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 800, // Extra bold
+                          textDecoration: 'none', transition: 'all 0.3s ease',
+                          boxShadow: '0 2px 8px rgba(201,168,76,0.1)'
+                        }}
+                        onMouseEnter={e => {
+                          const el = e.currentTarget as HTMLElement;
+                          el.style.background = 'var(--gold)';
+                          el.style.color = '#1A0E00';
+                          el.style.transform = 'translateY(-2px)';
+                          el.style.boxShadow = '0 6px 16px rgba(201,168,76,0.3)';
+                        }}
+                        onMouseLeave={e => {
+                          const el = e.currentTarget as HTMLElement;
+                          el.style.background = '#FFFBF0';
+                          el.style.color = 'var(--brown)';
+                          el.style.transform = 'translateY(0)';
+                          el.style.boxShadow = '0 2px 8px rgba(201,168,76,0.1)';
+                        }}
+                      >
+                        {city.name}
+                      </a>
+                    ))}
+                  </div>
+                )}
+
+                {/* Suburb pills — smaller, neutral */}
+                {suburbs.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {suburbs.map(city => (
+                      <Link 
+                        key={city.id} 
+                        to={`/city/${city.id}`}
+                        style={{ 
+                          padding: '6px 14px', borderRadius: 6, background: '#FDF6E3',
+                          border: '1px solid var(--border)', color: 'var(--text-dark)',
+                          fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 700, // Bold
+                          textDecoration: 'none', transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={e => {
+                          const el = e.currentTarget as HTMLElement;
+                          el.style.color = 'var(--gold)';
+                          el.style.borderColor = 'var(--gold)';
+                          el.style.background = '#FFF';
+                          el.style.transform = 'translateY(-1px)';
+                        }}
+                        onMouseLeave={e => {
+                          const el = e.currentTarget as HTMLElement;
+                          el.style.color = 'var(--text-dark)';
+                          el.style.borderColor = 'var(--border)';
+                          el.style.background = '#FDF6E3';
+                          el.style.transform = 'translateY(0)';
+                        }}
+                      >
+                        {city.name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* ─── SEO Links Grid — Optimized for smoothness ─── */}
+        <div style={{ marginTop: 80, width: '100%' }}>
+          <div className="section-label" style={{ marginBottom: 24, textAlign: 'center' }}>REGIONAL SEARCHES</div>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', 
+            gap: '8px 24px',
+            padding: '20px 0',
+            background: 'transparent',
+            borderTop: '1px solid var(--border)',
+            borderBottom: '1px solid var(--border)',
+            width: '100%'
+          }}>
+            {allLinks.map((item, i) => (
+              <a 
+                key={i}
+                href={`/city/${item.cityId}/${item.kwSlug}`}
+                style={{ 
+                  fontFamily: 'var(--font-sans)', 
+                  fontSize: 13, 
+                  color: 'var(--text-dark)', 
+                  textDecoration: 'none', 
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontWeight: 700,
+                  whiteSpace: 'nowrap', 
+                  overflow: 'hidden', 
+                  textOverflow: 'ellipsis',
+                  padding: '4px 0',
+                  transition: 'color 0.2s'
+                }}
+              >
+                <span style={{ color: 'var(--gold)', fontSize: 10 }}>✦</span>
+                {item.keyword} in {item.city}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom stats bar */}
+        <div style={{ 
+          marginTop: 80, padding: '40px', background: 'var(--bg2)', 
+          borderRadius: 16, border: '1px solid var(--border)',
+          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 32,
+          textAlign: 'center'
+        }}>
+          {[
+            { value: `${CITIES.length}+`, label: 'Cities Served' },
+            { value: '3–5 Days', label: 'Pan-India Delivery' },
+            { value: 'Free', label: 'Shipping Above ₹500' },
+            { value: '15+', label: 'Export Countries' },
+          ].map(stat => (
+            <div key={stat.label}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, color: 'var(--gold)', marginBottom: 4 }}>
+                {stat.value}
+              </div>
+              <div style={{ fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                {stat.label}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Disclaimer / fine print — SEO friendly */}
+        <p style={{ 
+          marginTop: 40, textAlign: 'center', fontFamily: 'var(--font-sans)', 
+          fontSize: 13, color: 'var(--text-muted)', maxWidth: 800, margin: '40px auto 0',
+          lineHeight: 1.6
+        }}>
+          White Stone Agarbatti ships to all pin codes across India via courier. 
+          Wholesale orders welcome from all regions. For bulk pricing, contact us on WhatsApp.
+        </p>
+      </div>
+    </section>
+  );
+});
 
 export const HomePage = () => {
   const homepageCanonical = 'https://whitestoneagarbatti.com/';
@@ -257,14 +603,14 @@ export const HomePage = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
   // scrollWrapperRef: the tall div that makes the sticky hero scroll
   const scrollWrapperRef = useRef<HTMLDivElement>(null);
-  const { ref: statsRef, isIntersecting: statsVisible } = useIntersectionObserver({ threshold: 0.01 });
-  const { ref: productsRef, isIntersecting: productsVisible } = useIntersectionObserver({ threshold: 0.01 });
-  const { ref: brandRef, isIntersecting: brandVisible } = useIntersectionObserver({ threshold: 0.01 });
-  const { ref: brandCardsRef, isIntersecting: brandCardsVisible } = useIntersectionObserver({ threshold: 0.01 });
-  const { ref: videoRef, isIntersecting: videoVisible } = useIntersectionObserver({ threshold: 0.01 });
-  const { ref: testimonialsRef, isIntersecting: testimonialsVisible } = useIntersectionObserver({ threshold: 0.01 });
-  const { ref: blogRef, isIntersecting: blogVisible } = useIntersectionObserver({ threshold: 0.01 });
-  const { ref: ctaRef, isIntersecting: ctaVisible } = useIntersectionObserver({ threshold: 0.01 });
+  const { ref: statsRef, isIntersecting: statsVisible } = useIntersectionObserver({ threshold: 0.08 });
+  const { ref: productsRef, isIntersecting: productsVisible } = useIntersectionObserver({ threshold: 0.08 });
+  const { ref: brandRef, isIntersecting: brandVisible } = useIntersectionObserver({ threshold: 0.08 });
+  const { ref: brandCardsRef, isIntersecting: brandCardsVisible } = useIntersectionObserver({ threshold: 0.08 });
+  const { ref: videoRef, isIntersecting: videoVisible } = useIntersectionObserver({ threshold: 0.08 });
+  const { ref: testimonialsRef, isIntersecting: testimonialsVisible } = useIntersectionObserver({ threshold: 0.08 });
+  const { ref: blogRef, isIntersecting: blogVisible } = useIntersectionObserver({ threshold: 0.08 });
+  const { ref: ctaRef, isIntersecting: ctaVisible } = useIntersectionObserver({ threshold: 0.08 });
 
   // Physics-based smooth scroll — spring + damping for premium feel
   const rawProgressRef = useRef(0);
@@ -273,18 +619,17 @@ export const HomePage = () => {
   const rafRef = useRef<number | null>(null);
   const heroActiveRef = useRef(true);
 
-  // Testimonial timer ref — so we can pause on hover (WCAG 2.2.2)
-  const testimonialTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const startTestimonialTimer = () => {
-    if (testimonialTimerRef.current) clearInterval(testimonialTimerRef.current);
-    testimonialTimerRef.current = setInterval(() => setTestimonialIdx(i => (i + 1) % testimonials.length), 5000);
-  };
-
-  useEffect(() => { const t = setTimeout(() => setActive(true), 100); return () => clearTimeout(t); }, []);
+  // Testimonial timer — auto-slide every 4 seconds
   useEffect(() => {
-    startTestimonialTimer();
-    return () => { if (testimonialTimerRef.current) clearInterval(testimonialTimerRef.current); };
+    const timer = setInterval(() => {
+      setTestimonialIdx(prev => (prev + 1) % testimonials.length);
+    }, 4000);
+    return () => clearInterval(timer);
   }, []);
+
+  const startTestimonialTimer = () => {
+    // This is now handled by the useEffect above for better reliability
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -363,55 +708,63 @@ export const HomePage = () => {
             const map = (v: number, a: number, b: number) => clamp01((v - a) / (b - a));
 
             // ─── IMAGE OPACITIES ────────────────────────────────────
-            // Image 1: Holds full until p=0.22, then eases OUT with easeIn (accelerates away)
-            const t1out = map(p, 0.28, 0.52);
-            const op1 = p < 0.28 ? 1 : 1 - easeIn(t1out);
+            // Senior Engineer: 4-scene cinematic system
+            const t1out = map(p, 0.15, 0.35);
+            const op1 = p < 0.15 ? 1 : 1 - easeIn(t1out);
 
-            // Image 2: Eases IN with easeOut (decelerates into place), holds, eases OUT
-            const t2in  = map(p, 0.38, 0.58);
-            const t2out = map(p, 0.62, 0.82);
-            const op2 = p < 0.38 ? 0
-              : p < 0.58 ? easeOut(t2in)
-              : p < 0.62 ? 1
-              : easeIn(1 - easeIn(t2out));
+            const t2in  = map(p, 0.25, 0.45);
+            const t2out = map(p, 0.45, 0.65);
+            const op2 = p < 0.25 ? 0
+              : p < 0.45 ? easeOut(t2in)
+              : p < 0.45 ? 1
+              : 1 - easeIn(t2out);
 
-            // Image 3: Eases IN, stays
-            const t3in = map(p, 0.7, 0.9);
-            const op3 = p < 0.7 ? 0 : easeOut(t3in);
+            const t3in  = map(p, 0.55, 0.75);
+            const t3out = map(p, 0.75, 0.90);
+            const op3 = p < 0.55 ? 0
+              : p < 0.75 ? easeOut(t3in)
+              : p < 0.75 ? 1
+              : 1 - easeIn(t3out);
+
+            const t4in = map(p, 0.85, 0.98);
+            const op4 = p < 0.85 ? 0 : easeOut(t4in);
 
             // ─── SCENE BLUR FOR FILMIC CROSSFADE ────────────────────
-            // Outgoing scene gets slightly soft, incoming scene resolves to sharp.
-            const blur1 = easeIn(map(p, 0.34, 0.54)) * 7;
+            const blur1 = easeIn(map(p, 0.20, 0.35)) * 3;
             const blur2 = Math.max(
-              easeIn(map(p, 0.44, 0.62)) * 4,
-              easeIn(map(p, 0.66, 0.84)) * 6
+              easeIn(map(p, 0.30, 0.45)) * 2,
+              easeIn(map(p, 0.50, 0.65)) * 2
             );
-            const blur3 = (1 - easeOut(map(p, 0.7, 0.9))) * 5;
+            const blur3 = Math.max(
+              easeIn(map(p, 0.60, 0.75)) * 2,
+              easeIn(map(p, 0.80, 0.90)) * 2
+            );
+            const blur4 = (1 - easeOut(map(p, 0.85, 0.98))) * 2;
 
             // ─── KEN BURNS — each image breathes while active ───────
-            // Image 1 zooms from 1.0 → 1.1 over its full display time
-            const scale1 = 1.0 + easeOut(map(p, 0, 0.52)) * 0.08;
-            // Image 2 resets zoom on entry, zooms in again
-            const scale2 = 1.0 + easeOut(map(p, 0.38, 0.82)) * 0.06;
-            // Image 3 same
-            const scale3 = 1.0 + easeOut(map(p, 0.7, 1.0)) * 0.06;
+            const scale1 = 1.0 + easeOut(map(p, 0, 0.30)) * 0.08;
+            const scale2 = 1.0 + easeOut(map(p, 0.25, 0.55)) * 0.06;
+            const scale3 = 1.0 + easeOut(map(p, 0.50, 0.80)) * 0.06;
+            const scale4 = 1.0 + easeOut(map(p, 0.75, 1.0)) * 0.06;
 
             // ─── DIRECTIONAL PARALLAX ───────────────────────────────
-            // Each image slides slightly upward as it exits, revealing depth
-            const y1 = easeIn(map(p, 0.22, 0.52)) * -24;   // rises up as it leaves
-            const y2 = (easeIn(map(p, 0.62, 0.82)) * -20); // same on exit
-            const y3 = 0; // stays put — it's the final destination
-            const x1 = easeInOut(map(p, 0.18, 0.52)) * -10;
-            const x2 = (1 - easeInOut(map(p, 0.38, 0.82))) * 8;
-            const x3 = (1 - easeOut(map(p, 0.7, 0.92))) * 6;
+            const y1 = easeIn(map(p, 0.15, 0.35)) * -24;
+            const y2 = easeIn(map(p, 0.45, 0.65)) * -20;
+            const y3 = easeIn(map(p, 0.75, 0.90)) * -20;
+            const y4 = 0;
+            const x1 = easeInOut(map(p, 0.10, 0.35)) * -10;
+            const x2 = (1 - easeInOut(map(p, 0.25, 0.65))) * 8;
+            const x3 = (1 - easeInOut(map(p, 0.55, 0.90))) * -8;
+            const x4 = (1 - easeOut(map(p, 0.80, 0.98))) * 6;
 
             // ─── WARM/COOL OVERLAY — shifts color temperature between scenes ──
-            // Adds a very subtle warm/cool tint that changes per image
-            const warmth2 = op2 * 0.06;  // slight warm amber on image 2
-            const cool3   = op3 * 0.04;  // slight cool blue on image 3
+            const warmth2 = op2 * 0.06;
+            const dark3   = op3 * 0.12;  // Darker, moodier for Black Oudh
+            const cool4   = op4 * 0.04;
             const transitionPulse = Math.max(
-              easeOut(map(p, 0.32, 0.58)) * (1 - easeOut(map(p, 0.58, 0.66))),
-              easeOut(map(p, 0.62, 0.86)) * (1 - easeOut(map(p, 0.86, 0.94)))
+              easeOut(map(p, 0.20, 0.40)) * (1 - easeOut(map(p, 0.40, 0.50))),
+              easeOut(map(p, 0.50, 0.70)) * (1 - easeOut(map(p, 0.70, 0.80))),
+              easeOut(map(p, 0.80, 0.95)) * (1 - easeOut(map(p, 0.95, 0.99)))
             );
             const sweepX = -30 + p * 160;
 
@@ -425,7 +778,7 @@ export const HomePage = () => {
                   opacity: op1,
                   transform: `scale(${scale1}) translate(${x1}px, ${y1}px)`,
                   filter: `blur(${blur1}px) saturate(${1 + op1 * 0.08}) brightness(${0.94 + op1 * 0.06})`,
-                  willChange: 'opacity, transform',
+                  willChange: 'opacity, transform, filter',
                 }} />
 
                 {/* Image 2 — Rose Gold Pack */}
@@ -436,18 +789,29 @@ export const HomePage = () => {
                   opacity: op2,
                   transform: `scale(${scale2}) translate(${x2}px, ${y2}px)`,
                   filter: `blur(${blur2}px) saturate(${1.03 + op2 * 0.12}) brightness(${0.92 + op2 * 0.08})`,
-                  willChange: 'opacity, transform',
+                  willChange: 'opacity, transform, filter',
                 }} />
 
-                {/* Image 3 — Product Range */}
+                {/* Image 3 — Black Oudh */}
+                <div aria-hidden="true" style={{
+                  position: 'absolute', inset: 0, zIndex: 0,
+                  backgroundImage: `url(${getProductImage('black-oudh')})`,
+                  backgroundSize: 'cover', backgroundPosition: 'center',
+                  opacity: op3,
+                  transform: `scale(${scale3}) translate(${x3}px, ${y3}px)`,
+                  filter: `blur(${blur3}px) saturate(${1.02 + op3 * 0.15}) brightness(${0.88 + op3 * 0.1})`,
+                  willChange: 'opacity, transform, filter',
+                }} />
+
+                {/* Image 4 — Product Range */}
                 <div aria-hidden="true" style={{
                   position: 'absolute', inset: 0, zIndex: 0,
                   backgroundImage: 'url(/hero-bg-3.webp)',
                   backgroundSize: 'cover', backgroundPosition: 'center top',
-                  opacity: op3,
-                  transform: `scale(${scale3}) translate(${x3}px, ${y3}px)`,
-                  filter: `blur(${blur3}px) saturate(${1.04 + op3 * 0.08}) brightness(${0.93 + op3 * 0.08})`,
-                  willChange: 'opacity, transform',
+                  opacity: op4,
+                  transform: `scale(${scale4}) translate(${x4}px, ${y4}px)`,
+                  filter: `blur(${blur4}px) saturate(${1.04 + op4 * 0.08}) brightness(${0.93 + op4 * 0.08})`,
+                  willChange: 'opacity, transform, filter',
                 }} />
 
                 {/* Color temperature overlay — breathes warmth between images */}
@@ -458,7 +822,12 @@ export const HomePage = () => {
                 }} />
                 <div aria-hidden="true" style={{
                   position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none',
-                  background: `rgba(60,95,140,${cool3})`,
+                  background: `rgba(10,5,0,${dark3})`,
+                  mixBlendMode: 'multiply',
+                }} />
+                <div aria-hidden="true" style={{
+                  position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none',
+                  background: `rgba(60,95,140,${cool4})`,
                   mixBlendMode: 'screen',
                 }} />
 
@@ -471,10 +840,18 @@ export const HomePage = () => {
                   width: '22%',
                   zIndex: 0,
                   pointerEvents: 'none',
-                  opacity: transitionPulse * 0.5,
-                  background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,214,130,0.34) 52%, rgba(255,255,255,0) 100%)',
+                  opacity: transitionPulse * 0.28,
+                  background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,214,130,0.4) 52%, rgba(255,255,255,0) 100%)',
                   transform: 'rotate(8deg)',
-                  filter: 'blur(20px)',
+                  filter: 'blur(30px)',
+                }} />
+
+                {/* Film Grain overlay — increases during transitions for smoothness */}
+                <div aria-hidden="true" style={{
+                  position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
+                  opacity: 0.05 + transitionPulse * 0.05,
+                  backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")',
+                  filter: 'contrast(120%) brightness(120%)',
                 }} />
               </>
             );
@@ -488,14 +865,14 @@ export const HomePage = () => {
             const extraDark = inTransition ? 0.12 : 0;
             return (
               <div aria-hidden="true" style={{
-                position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
-                background: `linear-gradient(to bottom,
-                  rgba(10,5,0,${0.50 + extraDark}) 0%,
-                  rgba(10,5,0,${0.32 + extraDark}) 40%,
-                  rgba(10,5,0,${0.32 + extraDark}) 60%,
-                  rgba(10,5,0,${0.60 + extraDark}) 100%)`,
-                transition: 'background 0.8s ease',
-              }} />
+                  position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
+                  background: `linear-gradient(to bottom,
+                    rgba(10,5,0,${0.50 + extraDark}) 0%,
+                    rgba(10,5,0,${0.32 + extraDark}) 40%,
+                    rgba(10,5,0,${0.32 + extraDark}) 60%,
+                    rgba(10,5,0,${0.50 + extraDark}) 100%)`, // Reduced from 0.60 to 0.50
+                  transition: 'background 0.8s ease',
+                }} />
             );
           })()}
 
@@ -536,22 +913,23 @@ export const HomePage = () => {
           <div style={{
             position: 'absolute', right: 28, top: '50%', transform: 'translateY(-50%)',
             zIndex: 4, display: 'flex', flexDirection: 'column', gap: 20,
-          }}>
+          }} className="scene-indicators-rail">
             {[
-              { label: 'TEMPLE COLLECTION', active: scrollProgress < 0.46 },
-              { label: 'ROSE GOLD PACK',    active: scrollProgress >= 0.38 && scrollProgress < 0.76 },
-              { label: 'PRODUCT RANGE',     active: scrollProgress >= 0.68 },
+              { label: 'TEMPLE COLLECTION', active: scrollProgress < 0.25 },
+              { label: 'ROSE GOLD PACK',    active: scrollProgress >= 0.25 && scrollProgress < 0.50 },
+              { label: 'BLACK OUDH',        active: scrollProgress >= 0.50 && scrollProgress < 0.75 },
+              { label: 'PRODUCT RANGE',     active: scrollProgress >= 0.75 },
             ].map((scene, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, flexDirection: 'row-reverse' }}>
                 {/* Track line */}
                 <div style={{
                   width: 2, height: scene.active ? 40 : 20, borderRadius: 1,
-                  background: scene.active ? 'var(--gold)' : 'rgba(201,168,76,0.25)',
+                  background: scene.active ? 'var(--gold)' : 'rgba(255,255,255,0.25)',
                   transition: 'height 0.6s cubic-bezier(0.22,1,0.36,1), background 0.4s ease',
                 }} />
                 {/* Label */}
                 <span style={{
-                  fontFamily: 'var(--font-display)', fontSize: 7, letterSpacing: '0.22em',
+                  fontFamily: 'var(--font-sans)', fontSize: 9, letterSpacing: '0.22em',
                   color: scene.active ? '#E8C96A' : 'transparent',
                   transition: 'color 0.5s ease, transform 0.5s cubic-bezier(0.22,1,0.36,1)',
                   whiteSpace: 'nowrap',
@@ -578,16 +956,16 @@ export const HomePage = () => {
 
           {/* ── SCROLL-DOWN CUE — gold chevron with bounce-down animation ── */}
           <div style={{
-            position: 'absolute', bottom: 28, left: '50%', transform: 'translateX(-50%)',
+            position: 'absolute', bottom: 72, left: '50%', transform: 'translateX(-50%)',
             zIndex: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
             opacity: scrollProgress < 0.04 ? 1 : 0,
             transition: 'opacity 0.8s ease',
             pointerEvents: 'none',
           }}>
-            <span style={{ fontFamily: 'var(--font-display)', fontSize: 7, letterSpacing: '0.3em', color: 'rgba(201,168,76,0.9)', textTransform: 'uppercase' }}>Scroll</span>
+            <span style={{ fontFamily: 'var(--font-sans)', fontSize: 10, letterSpacing: '0.3em', color: 'rgba(255,255,255,0.9)', textTransform: 'uppercase' }}>Scroll</span>
             <div style={{ animation: 'bounce-down 2s ease-in-out infinite' }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M6 9l6 6 6-6" stroke="rgba(201,168,76,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M6 9l6 6 6-6" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
           </div>
@@ -648,60 +1026,62 @@ export const HomePage = () => {
                     }}>CHIPLUN, MAHARASHTRA</span>
                   </div>
 
-                  {/* Hindi & Brand Title Group */}
-                  <div style={{ position: 'relative', marginBottom: 40, transform: `translateY(${-p * 20}px)` }}>
+                  {/* Brand Title Group with Glass Effect */}
+                  <div className="glass-card" style={{ 
+                    position: 'relative', 
+                    padding: '40px 60px',
+                    borderRadius: 24,
+                    marginBottom: 40, 
+                    transform: `translateY(${-p * 20}px)`,
+                    boxShadow: '0 20px 80px rgba(0,0,0,0.5)',
+                  }}>
                     <div style={{ 
                       fontFamily: 'var(--font-hindi)', 
-                      fontSize: 18, 
-                      color: 'rgba(255,255,255,0.8)', 
+                      fontSize: 22, 
+                      color: 'rgba(255,255,255,0.92)', // Increased from 0.9
                       fontWeight: 500,
-                      letterSpacing: '0.05em',
-                      marginBottom: 16
+                      letterSpacing: '0.08em',
+                      marginBottom: 20,
+                      textAlign: 'center'
                     }}>अगरबत्ती का अनुभव</div>
                     
-                    <h1 style={{
-                      fontFamily: 'var(--font-display)', fontWeight: 800,
-                      fontSize: 'clamp(54px, 12vw, 130px)', 
-                      lineHeight: 0.8,
-                      letterSpacing: '-0.03em',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      margin: 0
+                  <h1 className="premium-title" style={{
+                      fontSize: 'clamp(64px, 14vw, 150px)', 
+                      textAlign: 'center',
+                      color: '#FFFFFF',
+                      fontFamily: 'var(--font-sans)',
+                      fontWeight: 900,
+                      letterSpacing: '-0.02em',
+                      textShadow: '0 2px 32px rgba(0,0,0,0.5)'
                     }}>
-                      <span style={{ 
-                        color: '#FFF', 
-                        textShadow: '0 10px 40px rgba(0,0,0,0.4)',
-                        marginLeft: '-4px'
-                      }}>WHITE</span>
-                      <span style={{ 
-                        color: '#FFF', 
-                        textShadow: '0 10px 40px rgba(0,0,0,0.4)',
-                        marginLeft: '-4px'
-                      }}>STONE</span>
+                      <span style={{ color: '#FFF', display: 'block', animation: 'text-reveal 0.8s cubic-bezier(0.22,1,0.36,1) 0.3s both' }}>WHITE</span>
+                      <span style={{ color: '#FFF', display: 'block', animation: 'text-reveal 0.8s cubic-bezier(0.22,1,0.36,1) 0.4s both' }}>STONE</span>
                     </h1>
                   </div>
 
-                  {/* Tagline */}
-                  <div style={{ marginBottom: 40, transform: `translateY(${-p * 40}px)` }}>
+                  {/* Tagline & Description */}
+                  <div style={{ textAlign: 'center', maxWidth: 600, margin: '0 auto' }}>
                     <div style={{ 
                       fontFamily: 'var(--font-serif)', 
-                      fontSize: 18, 
-                      color: 'rgba(255,255,255,0.7)', 
-                      fontStyle: 'italic', 
-                      letterSpacing: '0.12em', 
-                      textTransform: 'uppercase'
+                      fontSize: 22, 
+                      color: 'var(--gold)', 
+                      fontWeight: 700, 
+                      letterSpacing: '0.15em', 
+                      textTransform: 'uppercase',
+                      marginBottom: 24,
+                      textShadow: '0 2px 10px rgba(0,0,0,0.5)'
                     }}>The Essence of Divine Purity</div>
-                  </div>
 
-                  {/* Description */}
-                  <p style={{ 
-                    fontFamily: 'var(--font-sans)', fontSize: 16, 
-                    color: 'rgba(255,255,255,0.85)', lineHeight: 1.6, 
-                    marginBottom: 48, maxWidth: 520,
-                    transform: `translateY(${-p * 50}px)`
-                  }}>
-                    Premium handcrafted agarbatti from Chiplun, Maharashtra. Natural ingredients, divine fragrances, and twenty years of sacred tradition.
-                  </p>
+                    <p style={{ 
+                      fontFamily: 'var(--font-sans)', fontSize: 17, // Increased from 16
+                      color: 'rgba(255,255,255,0.95)', lineHeight: 1.7, 
+                      marginBottom: 48,
+                      textShadow: '0 1px 15px rgba(0,0,0,0.8)',
+                      fontWeight: 400
+                    }}>
+                      Premium handcrafted agarbatti from Chiplun, Maharashtra. Natural ingredients, divine fragrances, and twenty years of sacred tradition.
+                    </p>
+                  </div>
 
                   {/* Actions */}
                   <div style={{ 
@@ -719,16 +1099,16 @@ export const HomePage = () => {
                     </a>
                   </div>
 
-                  {/* Stats */}
-                  <div ref={statsRef} style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
-                    {stats.map(s => (
+                  {/* Stats — Senior Engineer: Improved spacing and staggered entrance */}
+                  <div ref={statsRef} style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }} className="hero-stats-row">
+                    {stats.map((s, i) => (
                       <div key={s.value} style={{
                         opacity: statsVisible ? 1 : 0,
                         transform: statsVisible ? 'none' : 'translateY(16px)',
-                        transition: 'all 0.6s cubic-bezier(0.22,1,0.36,1)',
+                        transition: `all 0.6s cubic-bezier(0.22,1,0.36,1) ${i * 0.1}s`,
                       }}>
                         <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, color: 'var(--gold)', letterSpacing: '0.04em' }}>{s.value}</div>
-                        <div style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'rgba(253,246,227,0.6)', letterSpacing: '0.06em' }}>{s.label}</div>
+                        <div style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'rgba(255,255,255,0.78)', letterSpacing: '0.06em' }}>{s.label}</div>
                       </div>
                     ))}
                   </div>
@@ -742,7 +1122,7 @@ export const HomePage = () => {
                     ? `translateY(${-p * 50}px) scale(${1 - p * 0.08})`
                     : 'translateY(30px)',
                   transition: active ? 'none' : 'all 1.2s cubic-bezier(0.22,1,0.36,1) 0.2s',
-                }}>
+                }} className="hero-product-showcase">
                   <div aria-hidden="true" style={{ position: 'absolute', inset: 0, zIndex: 0, opacity: 0.2, animation: 'slow-rotate 60s linear infinite' }}>
                     <MandalaVisual />
                   </div>
@@ -751,7 +1131,7 @@ export const HomePage = () => {
                       <img
                         src={getProductImage(heroProduct.id)}
                         alt={`${heroProduct.name} — premium agarbatti`}
-                        loading="lazy"
+                        loading="eager" // Senior Engineer: High priority LCP
                         width={320} height={280}
                         style={{
                           width: 320, height: 280, objectFit: 'contain',
@@ -761,10 +1141,10 @@ export const HomePage = () => {
                       />
                     </div>
                     <div style={{ marginTop: 20, padding: '16px 24px', background: 'rgba(10,5,0,0.6)', border: '1px solid rgba(201,168,76,0.3)', display: 'inline-block', minWidth: 280, textAlign: 'left', backdropFilter: 'blur(8px)' }}>
-                      <div style={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: 'rgba(201,168,76,0.7)', letterSpacing: '0.08em', marginBottom: 6 }}>FEATURED PRODUCT</div>
+                      <div style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'rgba(201,168,76,0.7)', letterSpacing: '0.08em', marginBottom: 6 }}>FEATURED PRODUCT</div>
                       <div style={{ fontFamily: 'var(--font-serif)', fontSize: 18, fontWeight: 600, color: '#FFFBF0', fontStyle: 'italic' }}>{heroProduct.name}</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
-                        <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'rgba(253,246,227,0.5)' }}>{heroProduct.sticks} · {heroProduct.burnTime}</span>
+                        <span style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'rgba(255,255,255,0.78)' }}>{heroProduct.sticks} · {heroProduct.burnTime}</span>
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 16 }}>
@@ -786,19 +1166,25 @@ export const HomePage = () => {
             );
           })()}
 
-          {/* ── SCENE CAPTIONS — appear when image 2/3 are showing ── */}
+          {/* ── SCENE CAPTIONS — appear when image 2/3/4 are showing ── */}
           {[
             {
               label: 'ROSE GOLD PACK',
               caption: 'Premium Rose Gold — Export Quality',
               sub: 'हिंदी में: रोज़ गोल्ड अगरबत्ती',
-              show: scrollProgress > 0.38 && scrollProgress < 0.68,
+              show: scrollProgress >= 0.25 && scrollProgress < 0.50,
+            },
+            {
+              label: 'BLACK OUDH',
+              caption: 'Deep, mysterious, and spiritually grounding',
+              sub: 'हिंदी में: ब्लैक ऊद अगरबत्ती',
+              show: scrollProgress >= 0.50 && scrollProgress < 0.75,
             },
             {
               label: 'PRODUCT RANGE',
               caption: 'Full lineup of premium agarbatti',
               sub: 'हिंदी में: प्रीमियम अगरबत्ती संग्रह',
-              show: scrollProgress >= 0.68,
+              show: scrollProgress >= 0.75,
             },
           ].map((slide, i) => (
             <div key={i} style={{
@@ -849,17 +1235,30 @@ export const HomePage = () => {
           <MandalaVisual />
         </div>
 
-        <div style={{ maxWidth: 900, margin: '0 auto', position: 'relative', zIndex: 1 }}>
+        <div style={{ maxWidth: 900, margin: '0 auto', position: 'relative', zIndex: 1, textAlign: 'center' }}>
           <div style={{ 
             display: 'inline-block', 
             marginBottom: 32, 
-            padding: 12, 
+            width: 84, 
+            height: 84, 
             borderRadius: '50%', 
-            border: '1px solid var(--gold)',
-            background: 'var(--bg2)',
-            boxShadow: '0 0 20px rgba(201,168,76,0.15)'
+            border: '1.5px solid var(--gold)',
+            background: '#1A0E00',
+            boxShadow: '0 0 25px rgba(201,168,76,0.2)',
+            overflow: 'hidden',
+            position: 'relative'
           }}>
-            <img src="/ws-emblem.webp" alt="WS Emblem" style={{ width: 60, height: 60, objectFit: 'contain' }} />
+            <img 
+              src="/ws-emblem.webp" 
+              alt="WS Emblem" 
+              style={{ 
+                width: '100%', 
+                height: '100%', 
+                objectFit: 'cover',
+                transform: 'scale(2.1)', // Max accuracy: Same scale as navbar for consistency
+                display: 'block'
+              }} 
+            />
           </div>
           
           <h2 style={{ 
@@ -906,7 +1305,7 @@ export const HomePage = () => {
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span style={{ color: 'var(--gold)', fontSize: 12 }}>{item.icon}</span>
                 <span style={{ 
-                  fontFamily: 'var(--font-display)', 
+                  fontFamily: 'var(--font-sans)', // Replaced display with sans
                   fontSize: 12, 
                   letterSpacing: '0.2em', 
                   color: 'var(--text-muted)',
@@ -982,7 +1381,7 @@ export const HomePage = () => {
                 backdropFilter: 'blur(6px)',
               }}>
                 <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--gold)' }} />
-                <span style={{ fontFamily: 'var(--font-display)', fontSize: 9, letterSpacing: '0.22em', color: '#E8C96A' }}>OUR OFFERINGS</span>
+                <span style={{ fontFamily: 'var(--font-display)', fontSize: 12, letterSpacing: '0.22em', color: '#E8C96A' }}>OUR OFFERINGS</span>
                 <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--gold)' }} />
               </div>
               <h2 style={{
@@ -994,7 +1393,7 @@ export const HomePage = () => {
               </h2>
             </div>
             <a href="/products" style={{
-              fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: '0.12em',
+              fontFamily: 'var(--font-sans)', fontSize: 12, letterSpacing: '0.12em',
               color: '#E8C96A', textDecoration: 'none', border: '1px solid rgba(201,168,76,0.4)',
               padding: '10px 24px', backdropFilter: 'blur(6px)',
               background: 'rgba(201,168,76,0.08)',
@@ -1002,8 +1401,7 @@ export const HomePage = () => {
             }}>VIEW ALL →</a>
           </div>
 
-          {/* Product cards — glassmorphism on dark bg */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24 }} className="product-grid">
             {PRODUCTS.slice(0, 4).map((p, i) => (
               <a
                 key={p.id}
@@ -1011,24 +1409,34 @@ export const HomePage = () => {
                 style={{ textDecoration: 'none', display: 'block' }}
               >
               <div
+                className="product-card"
                 style={{
                   position: 'relative', overflow: 'hidden',
-                  background: 'rgba(253,246,227,0.06)',
+                  background: 'rgba(253,246,227,0.09)', // Increased from 0.06
                   border: '1px solid rgba(201,168,76,0.18)',
-                  borderTop: '2px solid rgba(201,168,76,0.7)',
+                  borderTop: '2px solid transparent',
+                  backgroundImage: 'linear-gradient(rgba(253,246,227,0.09), rgba(253,246,227,0.09)), linear-gradient(90deg, var(--gold2), var(--gold3), var(--gold2))',
+                  backgroundOrigin: 'border-box',
+                  backgroundClip: 'padding-box, border-box',
+                  backgroundSize: '100% 100%, 200% auto',
+                  animation: 'shimmer-line 6s linear infinite',
                   backdropFilter: 'blur(12px)',
-                  opacity: productsVisible ? 1 : 0,
-                  transform: productsVisible ? 'translateY(0)' : 'translateY(40px)',
-                  transition: `opacity 0.7s cubic-bezier(0.22,1,0.36,1) ${i * 0.12 + 0.2}s, transform 0.7s cubic-bezier(0.22,1,0.36,1) ${i * 0.12 + 0.2}s`,
+                  opacity: 1, // Force visible
                   cursor: 'pointer',
                   height: '100%',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.boxShadow = '0 0 0 1px rgba(201,168,76,0.3), 0 24px 60px rgba(0,0,0,0.5)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.boxShadow = 'none';
                 }}
               >
                 {/* Number watermark */}
                 <div aria-hidden="true" style={{
                   position: 'absolute', top: 10, right: 14,
                   fontFamily: 'var(--font-display)', fontSize: 52, fontWeight: 900,
-                  color: 'rgba(201,168,76,0.07)', lineHeight: 1, userSelect: 'none', zIndex: 0,
+                  color: 'rgba(201,168,76,0.05)', lineHeight: 1, userSelect: 'none', zIndex: 0, // Reduced opacity from 0.07 to 0.05
                 }}>0{i + 1}</div>
 
                 {/* Subtle inner glow at top border */}
@@ -1040,7 +1448,7 @@ export const HomePage = () => {
 
                 {/* Product image — bigger, warm cream bg */}
                 <div style={{
-                  height: 310, position: 'relative', zIndex: 1,
+                  height: 340, position: 'relative', zIndex: 1, // Increased from 310
                   background: 'linear-gradient(135deg, rgba(253,246,227,0.12) 0%, rgba(230,200,100,0.06) 100%)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   overflow: 'hidden',
@@ -1073,12 +1481,12 @@ export const HomePage = () => {
                 {/* Card body */}
                 <div style={{ padding: '20px 22px 22px', position: 'relative', zIndex: 1 }}>
                   <h3 style={{
-                    fontFamily: 'var(--font-serif)', fontSize: 19, fontWeight: 600,
+                    fontFamily: 'var(--font-serif)', fontSize: 19, fontWeight: 700, // Increased from 600
                     color: '#FFFBF0', fontStyle: 'italic', marginBottom: 5, lineHeight: 1.3,
                   }}>{p.name}</h3>
                   <p style={{
-                    fontFamily: 'var(--font-sans)', fontSize: 12,
-                    color: 'rgba(253,246,227,0.5)', marginBottom: 18, lineHeight: 1.6,
+                    fontFamily: 'var(--font-sans)', fontSize: 13, // Increased from 12
+                    color: 'rgba(253,246,227,0.78)', marginBottom: 18, lineHeight: 1.6, // Increased from 0.5 to 0.78
                   }}>{p.fragrance} · {p.burnTime} · {p.sticks}</p>
 
                   {/* WhatsApp CTA */}
@@ -1086,29 +1494,18 @@ export const HomePage = () => {
                     href={`https://wa.me/919226915311?text=I%20want%20to%20order%20${encodeURIComponent(p.name)}%20White%20Stone%20Agarbatti`}
                     target="_blank"
                     rel="noopener noreferrer"
+                    className="btn-whatsapp"
                     style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                      width: '100%', padding: '11px 16px',
+                      width: '100%', padding: '13px 16px', // Increased from 11
                       background: 'rgba(37,211,102,0.15)',
                       border: '1px solid rgba(37,211,102,0.4)',
                       color: '#4AE082',
-                      fontFamily: 'var(--font-display)', fontSize: 10,
-                      fontWeight: 700, letterSpacing: '0.12em',
+                      fontFamily: 'var(--font-sans)', fontSize: 12, // Replaced Cinzel, increased from 10
+                      fontWeight: 500, letterSpacing: '0.08em',
                       textDecoration: 'none', borderRadius: 3,
                       backdropFilter: 'blur(4px)',
                       transition: 'background 0.3s, border-color 0.3s, transform 0.2s',
-                    }}
-                    onMouseEnter={e => {
-                      const el = e.currentTarget as HTMLElement;
-                      el.style.background = 'rgba(37,211,102,0.28)';
-                      el.style.borderColor = 'rgba(37,211,102,0.7)';
-                      el.style.transform = 'translateY(-1px)';
-                    }}
-                    onMouseLeave={e => {
-                      const el = e.currentTarget as HTMLElement;
-                      el.style.background = 'rgba(37,211,102,0.15)';
-                      el.style.borderColor = 'rgba(37,211,102,0.4)';
-                      el.style.transform = 'translateY(0)';
                     }}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -1189,7 +1586,7 @@ export const HomePage = () => {
                 }}
               >
                 <div style={{ fontSize: 28, marginBottom: 12 }}>{f.icon}</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 700, color: 'var(--text-dark)', letterSpacing: '0.06em', marginBottom: 6 }}>{f.title}</div>
+                <div style={{ fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 700, color: 'var(--text-dark)', letterSpacing: '0.06em', marginBottom: 6 }}>{f.title}</div>
                 <div style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--text-muted)' }}>{f.desc}</div>
               </div>
             ))}
@@ -1341,107 +1738,184 @@ export const HomePage = () => {
       </section>
 
       {/* TESTIMONIALS */}
-      <section style={{ padding: '100px 24px', background: 'var(--bg)', overflow: 'hidden' }}>
-        <div
-          ref={testimonialsRef}
-          onMouseEnter={() => { if (testimonialTimerRef.current) clearInterval(testimonialTimerRef.current); }}
-          onMouseLeave={() => startTestimonialTimer()}
-          style={{
-            maxWidth: 800, margin: '0 auto', textAlign: 'center',
-            opacity: testimonialsVisible ? 1 : 0,
-            transform: testimonialsVisible ? 'translateY(0)' : 'translateY(40px)',
-            transition: 'opacity 1s cubic-bezier(0.22,1,0.36,1), transform 1s cubic-bezier(0.22,1,0.36,1)',
+      <section style={{ padding: '120px 0', background: 'var(--bg)', overflow: 'hidden', borderTop: '1px solid var(--border)' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center', marginBottom: 64, padding: '0 24px' }}>
+          <div className="section-label" style={{ marginBottom: 16 }}>VOICES OF TRUST</div>
+          <h2 style={{ 
+            fontFamily: 'var(--font-sans)', 
+            fontSize: 'clamp(32px, 5vw, 48px)', 
+            fontWeight: 800, 
+            color: 'var(--text-dark)',
+            letterSpacing: '-0.02em'
+          }}>What Our Customers Say</h2>
+        </div>
+
+        <div 
+          style={{ 
+            width: '100vw',
+            position: 'relative',
+            left: '50%',
+            right: '50%',
+            marginLeft: '-50vw',
+            marginRight: '-50vw',
+            overflow: 'hidden',
+            padding: '60px 0'
           }}
         >
-          <div className="section-label" style={{ marginBottom: 24 }}>WHAT THEY SAY</div>
-          {/* Quote mark decoration */}
-          <div style={{
-            fontFamily: 'var(--font-serif)', fontSize: 120, color: 'var(--gold)', lineHeight: 0.5,
-            opacity: 0.15, marginBottom: 24, userSelect: 'none',
-          }}>"</div>
-          <div style={{ position: 'relative', minHeight: 160, overflow: 'hidden' }}>
-            {testimonials.map((t, i) => (
-              <p
-                key={i}
-                style={{
-                  fontFamily: 'var(--font-serif)', fontSize: 'clamp(18px,2.5vw,24px)',
-                  fontStyle: 'italic', color: 'var(--text-dark)', lineHeight: 1.7, marginBottom: 28,
-                  position: i === 0 ? 'relative' : 'absolute',
-                  top: i === 0 ? 'auto' : 0, left: 0, right: 0,
-                  opacity: i === testimonialIdx ? 1 : 0,
-                  transform: i === testimonialIdx ? 'translateY(0)' : 'translateY(12px)',
-                  transition: 'opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1)',
-                }}
-              >
-                "{t.quote}"
-              </p>
-            ))}
+          <div 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 40, 
+              transition: 'transform 0.8s cubic-bezier(0.22,1,0.36,1)',
+              transform: `translateX(calc(50vw - 250px - ${testimonialIdx * 540}px))`,
+              width: 'max-content',
+            }}
+          >
+            {testimonials.map((t, idx) => {
+              const isActive = idx === testimonialIdx;
+              
+              return (
+                <div 
+                  key={idx}
+                  style={{
+                    flex: '0 0 500px',
+                    width: 500,
+                    padding: isActive ? '60px 48px' : '40px 32px',
+                    background: isActive ? 'var(--bg2)' : 'rgba(255,255,255,0.02)',
+                    borderRadius: 32,
+                    border: isActive ? '1.5px solid var(--gold)' : '1px solid var(--border)',
+                    opacity: isActive ? 1 : 0.3,
+                    transform: isActive ? 'scale(1)' : 'scale(0.85)',
+                    transition: 'all 0.8s cubic-bezier(0.22,1,0.36,1)',
+                    textAlign: 'center',
+                    boxShadow: isActive ? '0 30px 70px rgba(0,0,0,0.15)' : 'none',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    filter: isActive ? 'none' : 'blur(1px)',
+                    cursor: isActive ? 'default' : 'pointer'
+                  }}
+                  onClick={() => setTestimonialIdx(idx)}
+                >
+                  {/* Quote icon */}
+                  <div style={{
+                    fontFamily: 'var(--font-serif)', 
+                    fontSize: isActive ? 80 : 60, 
+                    color: 'var(--gold)', 
+                    lineHeight: 0.5,
+                    opacity: 0.2, 
+                    marginBottom: 24, 
+                    userSelect: 'none',
+                  }}>"</div>
+
+                  <p style={{
+                    fontFamily: 'var(--font-serif)', 
+                    fontSize: isActive ? 'clamp(18px, 2.2vw, 22px)' : '16px',
+                    fontStyle: 'italic', 
+                    color: 'var(--text-dark)', 
+                    lineHeight: 1.7, 
+                    marginBottom: 32,
+                    transition: 'all 0.8s'
+                  }}>
+                    "{t.quote}"
+                  </p>
+
+                  {/* 5-star rating */}
+                  <div style={{ marginBottom: 20 }}>
+                    <span style={{ color: 'var(--gold)', fontSize: isActive ? 20 : 16, letterSpacing: 4 }}>★★★★★</span>
+                  </div>
+
+                  {/* Avatar block */}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                    <div style={{
+                      width: isActive ? 64 : 48, 
+                      height: isActive ? 64 : 48, 
+                      borderRadius: '50%',
+                      background: t.color,
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      fontFamily: 'var(--font-display)', 
+                      fontSize: isActive ? 18 : 14, 
+                      fontWeight: 700,
+                      color: '#fff', 
+                      letterSpacing: '0.08em',
+                      boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+                      transition: 'all 0.8s',
+                      marginBottom: 4,
+                    }}>
+                      {t.initials}
+                    </div>
+                    <div style={{
+                      fontFamily: 'var(--font-display)', 
+                      fontSize: isActive ? 13 : 11, 
+                      letterSpacing: '0.15em',
+                      color: 'var(--gold)', 
+                      fontWeight: 800,
+                      transition: 'all 0.8s',
+                    }}>
+                      {t.name}
+                    </div>
+                    <div style={{ 
+                      fontFamily: 'var(--font-sans)', 
+                      fontSize: isActive ? 14 : 12, 
+                      color: 'var(--text-muted)',
+                      fontWeight: 600,
+                      transition: 'all 0.8s'
+                    }}>
+                      {t.city}
+                    </div>
+                    {isActive && (
+                      <div style={{
+                        display: 'inline-flex', 
+                        alignItems: 'center', 
+                        gap: 6,
+                        fontFamily: 'var(--font-sans)', 
+                        fontSize: 11, 
+                        color: '#4AE082',
+                        marginTop: 4,
+                      }}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138z"/>
+                        </svg>
+                        Verified Customer
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          {/* 5-star rating */}
-          <div style={{ marginBottom: 16 }}>
-            <span style={{ color: 'var(--gold)', fontSize: 20, letterSpacing: 3 }}>★★★★★</span>
-          </div>
-          {/* Avatar + name block */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-            {/* Circular avatar with initials */}
-            <div style={{
-              width: 48, height: 48, borderRadius: '50%',
-              background: testimonials[testimonialIdx].color,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 700,
-              color: '#fff', letterSpacing: '0.08em',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
-              transition: 'background 0.4s',
-              marginBottom: 4,
-            }}>
-              {testimonials[testimonialIdx].initials}
-            </div>
-            <div style={{
-              fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: '0.15em',
-              color: 'var(--gold)', transition: 'opacity 0.4s',
-            }}>
-              {testimonials[testimonialIdx].name}
-            </div>
-            <div style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: '#888', transition: 'opacity 0.4s' }}>
-              {testimonials[testimonialIdx].city}
-            </div>
-            {/* Verified Customer badge */}
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 5,
-              fontFamily: 'var(--font-sans)', fontSize: 11, color: '#4AE082',
-              marginTop: 2,
-            }}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
-              </svg>
-              Verified Customer
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 32 }}>
-            {testimonials.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setTestimonialIdx(i)}
-                aria-label={`Testimonial ${i + 1}`}
-                style={{
-                  width: i === testimonialIdx ? 24 : 8, height: 8,
-                  borderRadius: 4, border: 'none', cursor: 'pointer',
-                  background: i === testimonialIdx ? 'var(--gold)' : 'rgba(201,168,76,0.25)',
-                  transition: 'all 0.5s cubic-bezier(0.22,1,0.36,1)',
-                }}
-              />
-            ))}
-          </div>
+        </div>
+
+        {/* Dot navigation */}
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 56 }}>
+          {testimonials.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setTestimonialIdx(i)}
+              aria-label={`Testimonial ${i + 1}`}
+              style={{
+                width: i === testimonialIdx ? 32 : 10, 
+                height: 10,
+                borderRadius: 5, 
+                border: 'none', 
+                cursor: 'pointer',
+                background: i === testimonialIdx ? 'var(--gold)' : 'rgba(201,168,76,0.25)',
+                transition: 'all 0.5s cubic-bezier(0.22,1,0.36,1)',
+              }}
+            />
+          ))}
         </div>
       </section>
 
       {/* HOW TO ORDER SECTION */}
       <section style={{ padding: '100px 24px', background: 'var(--bg)', borderTop: '1px solid var(--border)', overflow: 'hidden' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto', textAlign: 'center' }}>
-          <div className="section-label" style={{ marginBottom: 20 }}>SIMPLE PROCESS</div>
           <h2 style={{
-            fontFamily: 'var(--font-serif)', fontSize: 'clamp(32px,4vw,52px)',
-            fontStyle: 'italic', fontWeight: 700, color: 'var(--text-dark)',
+            fontFamily: 'var(--font-sans)', fontSize: 'clamp(32px,4vw,52px)',
+            fontWeight: 800, color: 'var(--text-dark)',
             lineHeight: 1.2, marginBottom: 64,
           }}>How to Order</h2>
           <div style={{
@@ -1540,10 +2014,65 @@ export const HomePage = () => {
                   transition: `opacity 0.8s cubic-bezier(0.22,1,0.36,1) ${i * 0.15 + 0.2}s, transform 0.8s cubic-bezier(0.22,1,0.36,1) ${i * 0.15 + 0.2}s`,
                 }}
               >
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 11, color: 'var(--gold2)', letterSpacing: '0.1em', marginBottom: 12 }}>{b.category} · {b.readTime}</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 12, color: 'var(--gold2)', letterSpacing: '0.1em', marginBottom: 12 }}>{b.category} · {b.readTime}</div>
                 <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 20, fontWeight: 600, color: 'var(--text-dark)', fontStyle: 'italic', lineHeight: 1.4, marginBottom: 12 }}>{b.title}</h3>
                 <p style={{ fontFamily: 'var(--font-sans)', fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6 }}>{b.excerpt}</p>
               </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CITY SEO GRID */}
+      <section>
+        <CitySEOSection />
+      </section>
+
+      {/* FAQ SECTION */}
+      <section id="faq" style={{ 
+        padding: '120px 24px', 
+        background: 'var(--bg2)', 
+        borderTop: '1px solid var(--border)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        {/* Subtle background highlight */}
+        <div aria-hidden="true" style={{ 
+          position: 'absolute', top: '20%', left: '50%', transform: 'translateX(-50%)',
+          width: '80%', height: '60%', background: 'radial-gradient(circle, rgba(201,168,76,0.05) 0%, transparent 70%)',
+          pointerEvents: 'none', zIndex: 0
+        }} />
+
+        <div style={{ maxWidth: 1000, margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <div style={{ textAlign: 'center', marginBottom: 72 }}>
+            <div style={{ 
+              display: 'inline-flex', alignItems: 'center', gap: 10, padding: '6px 20px', 
+              background: 'rgba(201,168,76,0.1)', borderRadius: 100, 
+              border: '1px solid rgba(201,168,76,0.3)', marginBottom: 24
+            }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--gold)' }} />
+              <span style={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 800, letterSpacing: '0.15em', color: 'var(--gold)', textTransform: 'uppercase' }}>
+                HAVE QUESTIONS?
+              </span>
+            </div>
+            <h2 style={{ 
+              fontFamily: 'var(--font-sans)', fontSize: 'clamp(40px,5vw,60px)', 
+              fontWeight: 900, color: 'var(--text-dark)', marginBottom: 20, 
+              letterSpacing: '-0.03em', lineHeight: 1.1 
+            }}>
+              Frequently Asked
+            </h2>
+            <div style={{ width: 80, height: 4, background: 'var(--gold)', margin: '0 auto', borderRadius: 2 }} />
+          </div>
+
+          <div style={{ display: 'grid', gap: 24 }}>
+            {[
+              { q: "Are White Stone agarbattis charcoal-free?", a: "Yes, all our premium incense sticks are 100% charcoal-free and handcrafted using natural essential oils and resins for a pure, non-toxic experience." },
+              { q: "How long does each stick burn?", a: "Our standard premium sticks burn for approximately 45-60 minutes, while our thicker dhoop sticks can last up to 90 minutes depending on the environment." },
+              { q: "Do you offer international shipping?", a: "Currently, we ship across all major cities in India and have export partnerships in over 15 countries. For international bulk orders, please contact our wholesale department." },
+              { q: "Can I place a wholesale order for my shop?", a: "Absolutely! We welcome wholesale inquiries from retailers and distributors. You can use the 'Wholesale Enquiry' button below or message us directly on WhatsApp." }
+            ].map((item, i) => (
+              <FAQItem key={i} q={item.q} a={item.a} index={i} />
             ))}
           </div>
         </div>
@@ -1560,10 +2089,10 @@ export const HomePage = () => {
             transition: 'opacity 1s cubic-bezier(0.22,1,0.36,1), transform 1s cubic-bezier(0.22,1,0.36,1)',
           }}
         >
-          <div className="section-label" style={{ marginBottom: 20 }}>START YOUR JOURNEY</div>
           <h2 style={{
-            fontFamily: 'var(--font-serif)', fontSize: 'clamp(32px,5vw,64px)', fontStyle: 'italic',
-            fontWeight: 700, color: 'var(--text-dark)', lineHeight: 1.2, marginBottom: 24,
+            fontFamily: 'var(--font-sans)', fontSize: 'clamp(32px,5vw,64px)',
+            fontWeight: 800, color: 'var(--text-dark)', lineHeight: 1.2, marginBottom: 24,
+            letterSpacing: '-0.02em',
             opacity: ctaVisible ? 1 : 0,
             transform: ctaVisible ? 'translateY(0)' : 'translateY(20px)',
             transition: 'opacity 1s cubic-bezier(0.22,1,0.36,1) 0.15s, transform 1s cubic-bezier(0.22,1,0.36,1) 0.15s',
@@ -1571,10 +2100,11 @@ export const HomePage = () => {
             Experience the Difference
           </h2>
           <p style={{
-            fontFamily: 'var(--font-serif)', fontSize: 18, color: 'var(--text-mid)', lineHeight: 1.7,
+            fontFamily: 'var(--font-sans)', fontSize: 18, color: 'var(--text-mid)', lineHeight: 1.7,
             marginBottom: 40, maxWidth: 480, margin: '0 auto 40px',
             opacity: ctaVisible ? 1 : 0,
             transition: 'opacity 1s cubic-bezier(0.22,1,0.36,1) 0.3s',
+            fontWeight: 500
           }}>
             Join thousands of households and temples across India and the world who trust White Stone for their daily rituals.
           </p>
@@ -1604,7 +2134,18 @@ export const HomePage = () => {
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
             {KEYWORDS.map(keyword => (
-              <span key={keyword} style={{ display: 'inline-flex', alignItems: 'center', padding: '10px 14px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 999, color: 'var(--cream)', fontSize: 13, lineHeight: 1.5 }}>
+              <span key={keyword} style={{ 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                padding: '10px 14px', 
+                background: 'rgba(255,255,255,0.08)', 
+                border: '1px solid rgba(255,255,255,0.08)', 
+                borderRadius: 999, 
+                color: 'var(--cream)', 
+                fontSize: 13, 
+                lineHeight: 1.5,
+                fontWeight: 700 // Make hidden keywords bold too for consistency
+              }}>
                 {keyword}
               </span>
             ))}
